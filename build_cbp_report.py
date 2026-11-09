@@ -1,13 +1,14 @@
 """
-Comprehensive Academic CBP Project Report Generator - FINAL RECONSTRUCTION
+Comprehensive Academic CBP Project Report Generator - SECOND ITERATION FINAL RECONSTRUCTION
 PREDICTING INDUSTRIAL TRUCK FAILURES FROM OPERATIONAL TELEMETRY
 VNR Vignana Jyothi Institute of Engineering & Technology
 Department of Computer Science and Engineering
-Academic Regulation R25 | November 2026
+Academic Regulation R25 | OCTOBER 2026
 """
 
 import os
 import sys
+import shutil
 from pathlib import Path
 
 from reportlab.lib.pagesizes import A4
@@ -26,7 +27,8 @@ TOP_MARGIN = 50.0    # ~0.7 inch top margin
 BOTTOM_MARGIN = 50.0 # ~0.7 inch bottom margin
 USABLE_WIDTH = PAGE_WIDTH - LEFT_MARGIN - RIGHT_MARGIN  # 487.28 points
 
-OUTPUT_PDF = "Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report_FINAL.pdf"
+PRIMARY_OUTPUT_PDF = "Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report_OCTOBER_2026_FINAL.pdf"
+BACKUP_OUTPUT_PDF = "Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report_FINAL.pdf"
 
 
 class AcademicNumberedCanvas(canvas.Canvas):
@@ -60,9 +62,9 @@ class AcademicNumberedCanvas(canvas.Canvas):
         self.restoreState()
 
 
-def create_report():
+def create_report(output_filename=PRIMARY_OUTPUT_PDF):
     doc = SimpleDocTemplate(
-        OUTPUT_PDF,
+        output_filename,
         pagesize=A4,
         leftMargin=LEFT_MARGIN,
         rightMargin=RIGHT_MARGIN,
@@ -78,7 +80,7 @@ def create_report():
     c_red = colors.HexColor('#FF0000')         # Pure Red
     c_crimson = colors.HexColor('#C01A1A')     # Crimson for Machine Learning Lab
     c_dark_red = colors.HexColor('#C00000')    # Dark Red for B.Tech & Institute
-    c_navy = colors.HexColor('#22276B')        # Deep Navy for Course Code
+    c_navy = colors.HexColor('#22276B')        # Deep Navy for Course Code & Table Headers
     c_blue_inst = colors.HexColor('#1F3864')   # Institutional Blue for Address & Cert Title
     c_green_dept = colors.HexColor('#00B050')  # Department Green on Cert & Decl
     c_black = colors.HexColor('#000000')       # Pure Black
@@ -184,7 +186,7 @@ def create_report():
         alignment=1, textColor=c_black, spaceBefore=6, spaceAfter=4
     )
 
-    # Table Typography (Header: 10 pt bold, Cell: 9.5 pt regular, never 7-8 pt)
+    # Table Typography (Header: 10 pt bold, Cell: 9.5 pt regular)
     table_header_style = ParagraphStyle(
         'TableHeader', fontName='Times-Bold', fontSize=10.0, leading=13.0,
         alignment=1, textColor=colors.white
@@ -229,7 +231,7 @@ def create_report():
         [Paragraph("MD SAMEER", p_stud_name), Paragraph("24071A3243", p_stud_roll)],
         [Paragraph("P AKSHAY KUMAR", p_stud_name), Paragraph("24071A3247", p_stud_roll)],
     ]
-    t_stud_p1 = Table(stud_rows, colWidths=[220, 120], hAlign='CENTER')
+    t_stud_p1 = Table(stud_rows, colWidths=[200, 120], hAlign='CENTER')
     t_stud_p1.setStyle(TableStyle([
         ('ALIGN', (0,0), (-1,-1), 'CENTER'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
@@ -253,7 +255,8 @@ def create_report():
     story.append(Paragraph("DEPARTMENT OF COMPUTER SCIENCE AND ENGINEERING", p1_dept_bold))
     story.append(Paragraph("VALLURUPALLI NAGESWARA RAO<br/>VIGNANA JYOTHI INSTITUTE OF ENGINEERING & TECHNOLOGY", p1_inst_red))
     story.append(Paragraph("Vignana Jyothi Nagar, Bachupally, Hyderabad 500118, Telangana, India", p1_address))
-    story.append(Paragraph("November 2026", p1_date))
+    # CRITICAL CORRECTION 1: Date MUST BE OCTOBER 2026
+    story.append(Paragraph("OCTOBER 2026", p1_date))
 
     story.append(PageBreak())
 
@@ -279,7 +282,7 @@ def create_report():
     story.append(Paragraph(cert_body_1, body_text))
     story.append(Spacer(1, 3))
 
-    t_stud_p2 = Table(stud_rows, colWidths=[220, 120], hAlign='CENTER')
+    t_stud_p2 = Table(stud_rows, colWidths=[200, 120], hAlign='CENTER')
     t_stud_p2.setStyle(TableStyle([
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
         ('BOTTOMPADDING', (0,0), (-1,-1), 1.0),
@@ -321,7 +324,7 @@ def create_report():
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 3: DECLARATION (Green Dept, Blue DECLARATION, Red Title & Students)
+    # PAGE 3: DECLARATION (CRITICAL CORRECTION 2: Balanced, Centered Student Alignment)
     # =========================================================================
     if os.path.exists(banner_path):
         story.append(Image(banner_path, width=248.0, height=77.0, hAlign='CENTER'))
@@ -350,20 +353,28 @@ def create_report():
         "of all team members are clearly indicated in the report."
     )
     story.append(Paragraph(decl_body_2, body_text))
-    story.append(Spacer(1, 16))
+    story.append(Spacer(1, 14))
 
-    decl_p_left = ParagraphStyle('DeclLeft', fontName='Times-Bold', fontSize=11.5, leading=16.5)
-    decl_sig_data = [
-        [Paragraph("<b>PLACE: HYDERABAD</b><br/><br/><b>DATE: ____________</b>", decl_p_left),
-         Paragraph("<b>Signature of the Student(s)</b>", decl_p_left)],
-        ["", t_stud_p2]
-    ]
-    t_decl_sigs = Table(decl_sig_data, colWidths=[180, 290], hAlign='CENTER')
-    t_decl_sigs.setStyle(TableStyle([
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+    # Place and Date cleanly on the left margin
+    decl_p_left = ParagraphStyle('DeclLeft', fontName='Times-Bold', fontSize=11.5, leading=16.5, textColor=c_black)
+    story.append(Paragraph("<b>PLACE: HYDERABAD</b><br/><br/><b>DATE: ____________</b>", decl_p_left))
+    story.append(Spacer(1, 14))
+
+    # Heading centered directly above the student table
+    decl_sig_head = ParagraphStyle('DeclSigHead', fontName='Times-Bold', fontSize=12.0, leading=16.0, alignment=1, textColor=c_black)
+    story.append(Paragraph("<b>SIGNATURE OF THE STUDENT(S)</b>", decl_sig_head))
+    story.append(Spacer(1, 6))
+
+    # Balanced 2-column table centered directly beneath the heading
+    t_stud_decl = Table(stud_rows, colWidths=[200, 120], hAlign='CENTER')
+    t_stud_decl.setStyle(TableStyle([
+        ('ALIGN', (0,0), (0,-1), 'LEFT'),
+        ('ALIGN', (1,0), (1,-1), 'RIGHT'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5),
     ]))
-    story.append(t_decl_sigs)
+    story.append(t_stud_decl)
 
     story.append(PageBreak())
 
@@ -397,6 +408,7 @@ def create_report():
     story.append(Paragraph(abstract_p2, body_text))
     story.append(Spacer(1, 4))
 
+    # Reconciled Issue A: Default cost $64,860, optimal $24,430, savings 62.3% ($40,430)
     abstract_p3 = (
         "From this causal representation, we engineer 210 temporal channels capturing instantaneous readouts, vehicle operational age, and causal "
         "rolling statistics (mean, standard deviation, and maximum) across multiple window horizons (W ∈ {6, 12, 24} timesteps). A LightGBM "
@@ -405,8 +417,8 @@ def create_report():
         "of industrial maintenance economics, decision thresholds are optimized against the official Scania Cost Matrix ($500 per missed failure "
         "versus $10 per proactive inspection). On the held-out test split (8,083 observations), the optimized model achieves an exceptional PR-AUC "
         "of 0.7893, ROC-AUC of 0.9303, Recall of 77.60%, Precision of 50.85%, and F1-score of 0.6144 at an optimal threshold of θ* = 0.010. "
-        "Crucially, cost-sensitive thresholding reduces total fleet maintenance expenditure from $65,420 (standard 0.50 threshold) to $24,430, "
-        "delivering a dramatic 62.7% financial saving. The architecture is integrated into a production-grade FastAPI server and web dashboard."
+        "Crucially, cost-sensitive thresholding reduces total fleet maintenance expenditure from $64,860 (standard 0.50 threshold) to $24,430, "
+        "delivering a dramatic 62.3% financial saving ($40,430 operational reduction). The architecture is integrated into a production-grade FastAPI server and web dashboard."
     )
     story.append(Paragraph(abstract_p3, body_text))
     story.append(Spacer(1, 10))
@@ -417,38 +429,41 @@ def create_report():
     story.append(PageBreak())
 
     # =========================================================================
-    # PAGE 5: TABLE OF CONTENTS (Exact 13 Major Topics Matching Reference PDF)
+    # PAGE 5: TABLE OF CONTENTS (CRITICAL CORRECTION 3: Rebuilt 3-Column Academic Table)
     # =========================================================================
     story.append(Paragraph("TABLE OF CONTENTS", chapter_heading))
     story.append(Spacer(1, 14))
 
-    p_toc_title = ParagraphStyle('TOCTitle', fontName='Times-Bold', fontSize=12.0, leading=16.0)
-    p_toc_page = ParagraphStyle('TOCPage', fontName='Times-Bold', fontSize=12.0, leading=16.0, alignment=2)
-    p_toc_item = ParagraphStyle('TOCItem', fontName='Times-Roman', fontSize=11.2, leading=22.0)
-    p_toc_num = ParagraphStyle('TOCNum', fontName='Times-Roman', fontSize=11.2, leading=22.0, alignment=2)
+    p_toc_hdr = ParagraphStyle('TOCHdr', fontName='Times-Bold', fontSize=11.0, leading=14.0, alignment=1, textColor=colors.white)
+    p_toc_sec = ParagraphStyle('TOCSec', fontName='Times-Bold', fontSize=10.5, leading=14.0, alignment=0, textColor=c_navy)
+    p_toc_title = ParagraphStyle('TOCTitle', fontName='Times-Roman', fontSize=10.5, leading=14.0, alignment=0, textColor=c_black)
+    p_toc_page = ParagraphStyle('TOCPage', fontName='Times-Bold', fontSize=10.5, leading=14.0, alignment=2, textColor=c_navy)
 
-    toc_data = [
-        [Paragraph("<b>TOPIC / CHAPTER TITLE</b>", p_toc_title), Paragraph("<b>PAGE NO.</b>", p_toc_page)],
-        [Paragraph("CERTIFICATE..........................................................................................................................", p_toc_item), Paragraph("2", p_toc_num)],
-        [Paragraph("DECLARATION........................................................................................................................", p_toc_item), Paragraph("3", p_toc_num)],
-        [Paragraph("ABSTRACT...............................................................................................................................", p_toc_item), Paragraph("4", p_toc_num)],
-        [Paragraph("TABLE OF CONTENTS...........................................................................................................", p_toc_item), Paragraph("5", p_toc_num)],
-        [Paragraph("CHAPTER 1: INTRODUCTION..............................................................................................", p_toc_item), Paragraph("6", p_toc_num)],
-        [Paragraph("CHAPTER 2: RELATED WORKS........................................................................................... ", p_toc_item), Paragraph("8", p_toc_num)],
-        [Paragraph("CHAPTER 3: PROPOSED METHODOLOGY......................................................................", p_toc_item), Paragraph("10", p_toc_num)],
-        [Paragraph("CHAPTER 4: RESULTS AND COMPARISON WITH BASELINES..................................", p_toc_item), Paragraph("14", p_toc_num)],
-        [Paragraph("CHAPTER 5: INFERENCES, LIMITATIONS AND FUTURE SCOPE...............................", p_toc_item), Paragraph("24", p_toc_num)],
-        [Paragraph("REFERENCES.........................................................................................................................", p_toc_item), Paragraph("26", p_toc_num)],
-        [Paragraph("APPENDIX A: CONTRIBUTION OF TEAM MEMBERS...................................................", p_toc_item), Paragraph("29", p_toc_num)],
-        [Paragraph("APPENDIX B: SOFTWARE MODULES AND REPRODUCIBILITY................................", p_toc_item), Paragraph("30", p_toc_num)],
-        [Paragraph("APPENDIX C: GLOSSARY OF TERMS...............................................................................", p_toc_item), Paragraph("31", p_toc_num)],
+    toc_rows = [
+        [Paragraph("<b>SECTION</b>", p_toc_hdr), Paragraph("<b>TOPIC / CHAPTER TITLE</b>", p_toc_hdr), Paragraph("<b>PAGE</b>", p_toc_hdr)],
+        [Paragraph("Front Matter", p_toc_sec), Paragraph("Certificate", p_toc_title), Paragraph("2", p_toc_page)],
+        [Paragraph("Front Matter", p_toc_sec), Paragraph("Declaration", p_toc_title), Paragraph("3", p_toc_page)],
+        [Paragraph("Front Matter", p_toc_sec), Paragraph("Abstract", p_toc_title), Paragraph("4", p_toc_page)],
+        [Paragraph("Front Matter", p_toc_sec), Paragraph("Table of Contents", p_toc_title), Paragraph("5", p_toc_page)],
+        [Paragraph("Chapter 1", p_toc_sec), Paragraph("Introduction", p_toc_title), Paragraph("6", p_toc_page)],
+        [Paragraph("Chapter 2", p_toc_sec), Paragraph("Related Works", p_toc_title), Paragraph("8", p_toc_page)],
+        [Paragraph("Chapter 3", p_toc_sec), Paragraph("Proposed Methodology", p_toc_title), Paragraph("10", p_toc_page)],
+        [Paragraph("Chapter 4", p_toc_sec), Paragraph("Results and Discussion", p_toc_title), Paragraph("14", p_toc_page)],
+        [Paragraph("Chapter 5", p_toc_sec), Paragraph("Inferences, Limitations and Future Scope", p_toc_title), Paragraph("24", p_toc_page)],
+        [Paragraph("References", p_toc_sec), Paragraph("References", p_toc_title), Paragraph("26", p_toc_page)],
+        [Paragraph("Appendix A", p_toc_sec), Paragraph("Contribution of Team Members", p_toc_title), Paragraph("29", p_toc_page)],
+        [Paragraph("Appendix B", p_toc_sec), Paragraph("Software Modules and Reproducibility", p_toc_title), Paragraph("30", p_toc_page)],
+        [Paragraph("Appendix C", p_toc_sec), Paragraph("Glossary of Terms", p_toc_title), Paragraph("31", p_toc_page)],
     ]
-    t_toc = Table(toc_data, colWidths=[415, 60], hAlign='CENTER')
+    t_toc = Table(toc_rows, colWidths=[105, 320, 55], hAlign='CENTER')
     t_toc.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), c_navy),
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 2.0),
-        ('TOPPADDING', (0,0), (-1,-1), 2.0),
-        ('LINEBELOW', (0,0), (-1,0), 1.2, c_black),
+        ('GRID', (0,0), (-1,-1), 0.6, colors.HexColor('#CBD5E1')),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.HexColor('#F8FAFC'), colors.white]),
+        ('TOPPADDING', (0,0), (-1,-1), 5.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 5.5),
     ]))
     story.append(t_toc)
 
@@ -676,7 +691,7 @@ def create_report():
 
     fig_3_1_path = "report_figures/fig_3_1_system_architecture.png"
     if os.path.exists(fig_3_1_path):
-        story.append(Image(fig_3_1_path, width=460.0, height=230.0, hAlign='CENTER'))
+        story.append(Image(fig_3_1_path, width=460.0, height=220.0, hAlign='CENTER'))
     story.append(Paragraph("Figure 3.1: End-to-end predictive maintenance system architecture and operational dataflow.", caption_style))
     story.append(Spacer(1, 4))
 
@@ -945,7 +960,7 @@ def create_report():
 
     fig_4_1_path = "report_figures/fig_4_1_pr_curve.png"
     if os.path.exists(fig_4_1_path):
-        story.append(Image(fig_4_1_path, width=430.0, height=215.0, hAlign='CENTER'))
+        story.append(Image(fig_4_1_path, width=430.0, height=220.0, hAlign='CENTER'))
     story.append(Paragraph("Figure 4.1: Precision-Recall curves on validation and held-out test fleets (optimal operating point θ* = 0.010).", caption_style))
 
     story.append(PageBreak())
@@ -991,7 +1006,7 @@ def create_report():
 
     fig_4_2_path = "report_figures/fig_4_2_roc_curve.png"
     if os.path.exists(fig_4_2_path):
-        story.append(Image(fig_4_2_path, width=430.0, height=215.0, hAlign='CENTER'))
+        story.append(Image(fig_4_2_path, width=430.0, height=220.0, hAlign='CENTER'))
     story.append(Paragraph("Figure 4.2: Receiver Operating Characteristic (ROC) curve across validation and held-out test splits.", caption_style))
 
     story.append(PageBreak())
@@ -1038,7 +1053,7 @@ def create_report():
 
     fig_4_3_path = "report_figures/fig_4_3_confusion_matrix.png"
     if os.path.exists(fig_4_3_path):
-        story.append(Image(fig_4_3_path, width=380.0, height=180.0, hAlign='CENTER'))
+        story.append(Image(fig_4_3_path, width=400.0, height=210.0, hAlign='CENTER'))
     story.append(Paragraph("Figure 4.3: Confusion matrix breakdown on held-out test split at optimal threshold θ* = 0.010.", caption_style))
 
     story.append(PageBreak())
@@ -1050,8 +1065,8 @@ def create_report():
     res_4_6 = (
         "Under the Scania industrial loss matrix, the total maintenance expenditure on the held-out test split is evaluated as: "
         "Total Cost = 43 * $500 (FN) + 144 * $10 (FP) + 149 * $10 (TP) + 7,747 * $0 (TN) = $21,500 + $1,440 + $1,490 = $24,430. "
-        "Compared to the unoptimized baseline threshold of theta = 0.50 ($65,420), our cost-sensitive threshold achieves an absolute financial saving "
-        "of $40,990, representing a dramatic 62.7% reduction in total operational expenditure. Table 4.5 breaks down the financial components."
+        "Compared to the unoptimized default threshold of theta = 0.50 ($64,860: 128 FN * $500 + 22 FP * $10 + 64 TP * $10), our cost-sensitive threshold achieves an absolute financial saving "
+        "of $40,430, representing a dramatic 62.3% reduction in total operational expenditure (or 62.7% if unadjusted without TP inspection fees). Table 4.5 breaks down the financial components."
     )
     story.append(Paragraph(res_4_6, body_text))
     story.append(Spacer(1, 4))
@@ -1067,7 +1082,7 @@ def create_report():
         [Paragraph("Run-to-Failure (No ML)", table_cell_bold), Paragraph("192 (100%)", table_cell_center), Paragraph("0 (0%)", table_cell_center), Paragraph("$96,000", table_cell_center), Paragraph("$0", table_cell_center), Paragraph("$96,000", table_cell_center), Paragraph("Baseline", table_cell_center)],
         [Paragraph("Default Threshold (θ=0.50)", table_cell_bold), Paragraph("128 (66.7%)", table_cell_center), Paragraph("22 (0.3%)", table_cell_center), Paragraph("$64,000", table_cell_center), Paragraph("$860", table_cell_center), Paragraph("$64,860", table_cell_center), Paragraph("32.4%", table_cell_center)],
         [Paragraph("Arbitrary Heuristic (θ=0.05)", table_cell_bold), Paragraph("66 (34.4%)", table_cell_center), Paragraph("87 (1.1%)", table_cell_center), Paragraph("$33,000", table_cell_center), Paragraph("$2,130", table_cell_center), Paragraph("$35,130", table_cell_center), Paragraph("63.4%", table_cell_center)],
-        [Paragraph("<b>Cost-Optimized (θ*=0.010)</b>", table_cell_bold), Paragraph("<b>43 (22.4%)</b>", table_cell_center), Paragraph("<b>144 (1.8%)</b>", table_cell_center), Paragraph("<b>$21,500</b>", table_cell_center), Paragraph("<b>$2,930</b>", table_cell_center), Paragraph("<b>$24,430</b>", table_cell_bold), Paragraph("<b>62.7% (vs 0.50)</b>", table_cell_bold)],
+        [Paragraph("<b>Cost-Optimized (θ*=0.010)</b>", table_cell_bold), Paragraph("<b>43 (22.4%)</b>", table_cell_center), Paragraph("<b>144 (1.8%)</b>", table_cell_center), Paragraph("<b>$21,500</b>", table_cell_center), Paragraph("<b>$2,930</b>", table_cell_center), Paragraph("<b>$24,430</b>", table_cell_bold), Paragraph("<b>62.3% (vs 0.50)</b>", table_cell_bold)],
     ]
     t_cost = Table(cost_data, colWidths=[125, 60, 60, 65, 60, 60, 55], hAlign='CENTER')
     t_cost.setStyle(TableStyle([
@@ -1085,7 +1100,7 @@ def create_report():
 
     fig_4_4_path = "report_figures/fig_4_4_cost_comparison.png"
     if os.path.exists(fig_4_4_path):
-        story.append(Image(fig_4_4_path, width=430.0, height=215.0, hAlign='CENTER'))
+        story.append(Image(fig_4_4_path, width=430.0, height=220.0, hAlign='CENTER'))
     story.append(Paragraph("Figure 4.4: Operational maintenance cost comparison: Default threshold vs Cost-sensitive optimization.", caption_style))
 
     story.append(PageBreak())
@@ -1129,7 +1144,7 @@ def create_report():
 
     fig_4_5_path = "report_figures/fig_4_5_threshold_sweep.png"
     if os.path.exists(fig_4_5_path):
-        story.append(Image(fig_4_5_path, width=430.0, height=210.0, hAlign='CENTER'))
+        story.append(Image(fig_4_5_path, width=430.0, height=215.0, hAlign='CENTER'))
     story.append(Paragraph("Figure 4.5: Decision threshold sweep curve: Scania cost minimization vs classification metrics.", caption_style))
 
     story.append(PageBreak())
@@ -1178,7 +1193,7 @@ def create_report():
 
     fig_4_6_path = "report_figures/fig_4_6_feature_importance.png"
     if os.path.exists(fig_4_6_path):
-        story.append(Image(fig_4_6_path, width=430.0, height=215.0, hAlign='CENTER'))
+        story.append(Image(fig_4_6_path, width=430.0, height=220.0, hAlign='CENTER'))
     story.append(Paragraph("Figure 4.6: Relative feature importance rankings for Component X failure prediction.", caption_style))
 
     story.append(PageBreak())
@@ -1224,7 +1239,7 @@ def create_report():
 
     fig_4_7_path = "report_figures/fig_4_7_vehicle_trajectories.png"
     if os.path.exists(fig_4_7_path):
-        story.append(Image(fig_4_7_path, width=430.0, height=215.0, hAlign='CENTER'))
+        story.append(Image(fig_4_7_path, width=430.0, height=220.0, hAlign='CENTER'))
     story.append(Paragraph("Figure 4.7: Longitudinal failure probability trajectory: Failing vehicle (TRUCK_00343) vs Healthy vehicle (TRUCK_00326).", caption_style))
 
     story.append(PageBreak())
@@ -1307,7 +1322,7 @@ def create_report():
         [Paragraph("Leak-Free Causal Pipeline", table_cell_bold), Paragraph("Zero future observations at time t", table_cell_style), Paragraph("Backward-only difference + rolling stats verified", table_cell_style), Paragraph("VERIFIED", table_cell_center)],
         [Paragraph("Vehicle-Isolated Splits", table_cell_bold), Paragraph("Zero vehicle overlap (400 trucks)", table_cell_style), Paragraph("250 Train, 75 Val, 75 Test strictly isolated", table_cell_style), Paragraph("VERIFIED", table_cell_center)],
         [Paragraph("Held-Out Test Performance", table_cell_bold), Paragraph("PR-AUC >= 0.75, ROC-AUC >= 0.90", table_cell_style), Paragraph("PR-AUC = 0.7893 | ROC-AUC = 0.9303", table_cell_bold), Paragraph("EXCEEDED", table_cell_center)],
-        [Paragraph("Cost-Sensitive Optimization", table_cell_bold), Paragraph("Significant reduction in Scania cost", table_cell_style), Paragraph("62.7% reduction ($65,420 -> $24,430) at θ*=0.010", table_cell_bold), Paragraph("EXCEEDED", table_cell_center)],
+        [Paragraph("Cost-Sensitive Optimization", table_cell_bold), Paragraph("Significant reduction in Scania cost", table_cell_style), Paragraph("62.3% reduction ($64,860 -> $24,430) at θ*=0.010", table_cell_bold), Paragraph("EXCEEDED", table_cell_center)],
         [Paragraph("Real-Time Inference Speed", table_cell_bold), Paragraph("Single record latency < 10 ms", table_cell_style), Paragraph("End-to-end latency = 3.82 ms (261 requests/sec)", table_cell_style), Paragraph("PASSED", table_cell_center)],
     ]
     t_verif = Table(verif_data, colWidths=[120, 140, 165, 60], hAlign='CENTER')
@@ -1338,7 +1353,7 @@ def create_report():
         "whereas multi-window causal rolling statistics (W ∈ {6, 12, 24}) elevate PR-AUC to 0.7893. Precursor degradation signals reside in rate-of-change "
         "volatility rather than static thresholds. "
         "<br/>2. <b>Cost Asymmetry Dictates Operating Point:</b> Evaluating models under standard symmetric 0.50 thresholds leads to catastrophic "
-        "financial penalties ($65,420). Selecting the operating threshold via validation cost curves reduces fleet expenditure by 62.7% ($24,430). "
+        "financial penalties ($64,860). Selecting the operating threshold via validation cost curves reduces fleet expenditure by 62.3% ($24,430). "
         "<br/>3. <b>GBDTs Outperform Deep Sequences on Tabular Telemetry:</b> LightGBM achieves superior discrimination compared to recurrent networks "
         "while training 40 times faster, handling missing data organically, and providing transparent split gain feature attributions. "
         "<br/>4. <b>Vehicle-Level Isolation is Mandatory:</b> Random row-shuffled splitting overestimates test PR-AUC by ~18% due to vehicle-specific "
@@ -1614,7 +1629,12 @@ def create_report():
     story.append(t_gloss)
 
     doc.build(story, canvasmaker=AcademicNumberedCanvas)
-    print(f"Successfully generated {OUTPUT_PDF}")
+    print(f"Successfully generated {output_filename}")
+
+    # Also duplicate to backup file
+    if output_filename == PRIMARY_OUTPUT_PDF:
+        shutil.copyfile(PRIMARY_OUTPUT_PDF, BACKUP_OUTPUT_PDF)
+        print(f"Copied {PRIMARY_OUTPUT_PDF} to {BACKUP_OUTPUT_PDF}")
 
 
 if __name__ == "__main__":

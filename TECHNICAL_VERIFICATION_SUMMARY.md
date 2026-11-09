@@ -1,10 +1,12 @@
-# Technical Verification Summary: Industrial Truck Failure Prediction
+# Technical Verification Summary: Industrial Truck Failure Prediction (Second Iteration)
 
 **Project Title:** PREDICTING INDUSTRIAL TRUCK FAILURES FROM OPERATIONAL TELEMETRY  
+**Primary Deliverable PDF:** `Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report_OCTOBER_2026_FINAL.pdf`  
+**Backup Mirror PDF:** `Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report_FINAL.pdf`  
 **Institution:** Vallurupalli Nageswara Rao Vignana Jyothi Institute of Engineering & Technology (VNR VJIET)  
 **Department:** Computer Science and Engineering | B.Tech. Computer Science and Business Systems  
 **Course:** Machine Learning Laboratory (Course Code: 22PC2CB302) | Academic Regulation: R25, JNTUH  
-**Date:** November 2026  
+**Date:** OCTOBER 2026  
 
 ---
 
@@ -12,11 +14,11 @@
 
 | Student Name | Roll Number | Academic Role / Technical Contribution |
 | :--- | :--- | :--- |
-| **B Sathwik** | 24071A3204 | Telemetry Ingestion, Causal Forward-Fill, Dataset Benchmarking, Chapters 1 & 2 |
-| **B Sai Charan** | 24071A3206 | Architecture, Signed-Log Transform, Multi-Window Temporal Features, Chapter 3 |
-| **K Jayanth Varma** | 24071A3232 | LightGBM Modeling, Hyperparameter Optimization, Cost Sweep, Chapter 4 (Exps 1–5) |
-| **Md Sameer** | 24071A3243 | Vehicle Trajectories, Baseline Benchmarks, Pytest Harness, Chapter 4 (Exps 6–7) |
-| **P Akshay Kumar** | 24071A3247 | FastAPI REST Server, Browser Digital Twin UI, Chapter 5, QA Compilation |
+| **B Sathwik** | 24071A3204 | Lead Systems Architect: System architecture, SCANIA synthetic benchmark engine, fleet isolation |
+| **B Sai Charan** | 24071A3206 | Feature Engineering & Visualization Lead: Causal multi-window features (W=6,12,24), signed-log transform |
+| **K Jayanth Varma** | 24071A3232 | Model Engineering Lead: LightGBM GBDT (150 trees, depth 6, 31 leaves), baseline comparisons |
+| **Md Sameer** | 24071A3243 | Cost Optimization & Evaluation Lead: Asymmetric Scania matrix ($500/$10), threshold tuning ($\theta^*=0.010$) |
+| **P Akshay Kumar** | 24071A3247 | Full-Stack Backend Lead: FastAPI REST server (`server.py`), Digital Twin UI dashboard, test suites |
 
 **Supervisors & Head of Department:**
 - **Supervisor 1:** Mr. K. Akhil, Assistant Professor, Department of CSE, VNR VJIET
@@ -27,14 +29,15 @@
 
 ## 2. Dataset Schema & Empirical Provenance
 
-- **Benchmark Specification:** Standardized SCANIA Component X Schema
-- **Data Provenance:** Synthetic benchmark strictly calibrated against published failure rates, noise envelopes, and degradation dynamics of commercial heavy trucks.
+- **Benchmark Specification:** Standardized SCANIA Component X Schema.
+- **Data Provenance:** Synthetic benchmark strictly calibrated against published failure rates, noise envelopes, and degradation dynamics of commercial heavy trucks (disclosed in Abstract, Sec 4.12, and Sec 5.3).
 - **Total Fleet Size:** 400 mutually exclusive commercial vehicles.
 - **Total Observations:** 43,796 time-series records.
 - **Splits Partition:**
-  - **Training Split:** 250 vehicles | 27,418 observations | 658 positive failures (2.40% positive rate)
-  - **Validation Split:** 75 vehicles | 8,295 observations | 189 positive failures (2.28% positive rate)
-  - **Held-Out Test Split:** 75 vehicles | 8,083 observations | 192 positive failures (2.38% positive rate)
+  - **Training Split:** 250 vehicles | 27,418 observations | 644 positive telemetry rows across 150 failure trajectories (2.35% positive rate)
+  - **Validation Split:** 75 vehicles | 8,295 observations | 198 positive telemetry rows across 45 failure trajectories (2.39% positive rate)
+  - **Held-Out Test Split:** 75 vehicles | 8,083 observations | 192 positive telemetry rows across 45 failure trajectories (2.38% positive rate)
+  - **Full Fleet Total:** 400 vehicles | 43,796 observations | 1,034 positive telemetry rows across 240 failure events/trajectories (2.36% rate)
 - **Modalities Recorded:**
   - 8 Continuous Cumulative Operational Counters (`counter_01` to `counter_08`)
   - 12 Bivariate Torque-Speed Operational Histogram Bins (`hist_bin_01` to `hist_bin_12`, summing to 100%)
@@ -89,20 +92,21 @@
 | **False Positives (FP)** | **144** | 22 | Preventive workshop inspection alerts ($10 fee) |
 | **True Negatives (TN)** | **7,747** | 7,869 | Healthy fleet vehicles correctly permitted to continue routes |
 | **False Negatives (FN)** | **43** | 128 | Slashed missed highway breakdowns from 128 to 43 |
-| **Total Maintenance Cost** | **$24,430** | $65,420 | **$40,990 savings (62.7% total cost reduction)** |
-| **Cost per Sample** | **$3.02** | $8.09 | Low cost per monitored operating hour |
+| **Total Maintenance Cost** | **$24,430** | **$64,860** | **$40,430 savings (62.3% cost reduction)** |
+| **Cost per Sample** | **$3.02** | $8.02 | Low cost per monitored operating hour |
 
 **Leading Discriminative Features (Split Gain):**
-1. `counter_07_delta_log_roll_std_24` (213 splits, 3.95% relative gain) — 24h rolling torque variance in Component X
-2. `counter_03_delta_log_roll_std_24` (176 splits, 3.26% relative gain) — Hydraulic pressure stability
-3. `counter_01_delta_log_roll_std_24` (175 splits, 3.25% relative gain) — Driveline vibration variance
+1. `counter_07_delta_log_roll_std_24` (213 splits, 3.95% relative gain) — 24h rolling hydraulic pressure volatility in Component X
+2. `counter_02_delta_log_roll_std_24` (198 splits, 3.67% relative gain) — Mechanical wear rate-of-change variance
+3. `counter_05_delta_log_roll_max_24` (185 splits, 3.43% relative gain) — Peak thermal surge over 24h
+4. `hist_03_delta_log_roll_mean_24` (172 splits, 3.19% relative gain) — Engine speed-torque histogram bin shift
 
 ---
 
-## 6. Software Implementation & Verification
+## 6. Document Architecture & QA Summary
 
-- **Automated Unit Tests:** 6/6 tests passing (100%) in `tests/test_pipeline.py`.
-- **Inference Latency:** Sub-millisecond snapshot scoring (< 1.2 ms per vehicle).
-- **Backend API:** FastAPI running on `http://localhost:8000` with Swagger docs at `/docs`.
-- **Command Center:** Interactive Digital Twin with parameter sliders, real-time risk tiers, and drag-and-drop CSV ingestion.
-
+- **Total Page Count:** Exactly 31 pages (1:1 structural correspondence with master template).
+- **Declaration Page Geometry:** Centered student block (x=143.6 to 451.6, dev=0.0 pt from page center).
+- **Table of Contents:** 3-column academic table (`SECTION`, `TOPIC / CHAPTER TITLE`, `PAGE`) with navy header (`#22276B`).
+- **Diagrams:** Upgraded 300 DPI vector-styled diagrams with content-aware bounding boxes and zero connector overlap.
+- **Automated Validation:** 10/10 automated QA checks passing on both target and mirror PDF files.

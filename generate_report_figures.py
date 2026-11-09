@@ -2,6 +2,8 @@
 Enhanced High-Resolution Figure Generator for Academic CBP Project Report
 PREDICTING INDUSTRIAL TRUCK FAILURES FROM OPERATIONAL TELEMETRY
 VNR Vignana Jyothi Institute of Engineering & Technology
+Department of Computer Science and Engineering
+Academic Regulation R25 | OCTOBER 2026
 """
 
 import os
@@ -39,10 +41,10 @@ top_feats = metadata['top_features']
 
 
 # ==============================================================================
-# FIGURE 3.1: System Architecture (Spacious, Legible, Professional Box Constraints)
+# FIGURE 3.1: System Architecture (Spacious, Legible, No Overlaps, Content-Aware)
 # ==============================================================================
 def generate_fig_3_1():
-    fig, ax = plt.subplots(figsize=(8.8, 4.4), dpi=300)
+    fig, ax = plt.subplots(figsize=(10.0, 4.8), dpi=300)
     ax.axis('off')
 
     c_blue = '#1E3A8A'
@@ -51,76 +53,93 @@ def generate_fig_3_1():
     c_purple = '#6B21A8'
 
     def draw_box(x, y, w, h, stage_num, title, items, color, bg_col):
+        # Drop shadow
         shadow = patches.FancyBboxPatch((x+0.04, y-0.04), w, h, boxstyle="round,pad=0.03",
-                                        ec='none', fc='#CBD5E1', alpha=0.5)
+                                        ec='none', fc='#CBD5E1', alpha=0.55)
         ax.add_patch(shadow)
+        # Main container
         box = patches.FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.03",
-                                     ec=color, fc=bg_col, lw=2.0)
+                                     ec=color, fc=bg_col, lw=2.2)
         ax.add_patch(box)
 
-        pill = patches.FancyBboxPatch((x + 0.12, y + h - 0.42), 0.5, 0.28, boxstyle="round,pad=0.02",
+        # Stage Number Pill
+        pill = patches.FancyBboxPatch((x + 0.10, y + h - 0.40), 0.46, 0.28, boxstyle="round,pad=0.02",
                                       ec=color, fc=color)
         ax.add_patch(pill)
-        ax.text(x + 0.37, y + h - 0.28, stage_num, ha='center', va='center',
-                fontsize=10.5, fontweight='bold', color='#FFFFFF')
+        ax.text(x + 0.33, y + h - 0.26, stage_num, ha='center', va='center',
+                fontsize=11.0, fontweight='bold', color='#FFFFFF')
 
-        ax.text(x + 0.72, y + h - 0.28, title, ha='left', va='center',
-                fontsize=11.5, fontweight='bold', color=color)
+        # Stage Title
+        ax.text(x + 0.64, y + h - 0.26, title, ha='left', va='center',
+                fontsize=11.2, fontweight='bold', color=color)
 
-        ax.plot([x + 0.12, x + w - 0.12], [y + h - 0.52, y + h - 0.52], color=color, lw=1.0, alpha=0.35)
+        # Separator line
+        ax.plot([x + 0.10, x + w - 0.10], [y + h - 0.48, y + h - 0.48], color=color, lw=1.2, alpha=0.4)
 
-        for idx, (label, val) in enumerate(items):
-            y_pos = y + h - 0.80 - idx * 0.44
-            ax.text(x + 0.14, y_pos, f"* {label}:", ha='left', va='center',
-                    fontsize=9.8, fontweight='bold', color='#1E293B')
-            ax.text(x + 0.24, y_pos - 0.18, val, ha='left', va='center',
+        # Item cards
+        y_cursor = y + h - 0.76
+        for label, val in items:
+            card = patches.FancyBboxPatch((x + 0.08, y_cursor - 0.42), w - 0.16, 0.46,
+                                          boxstyle="round,pad=0.02", ec='#E2E8F0', fc='#FFFFFF', lw=1.0)
+            ax.add_patch(card)
+            ax.text(x + 0.14, y_cursor - 0.10, label, ha='left', va='center',
+                    fontsize=9.8, fontweight='bold', color='#0F172A')
+            ax.text(x + 0.14, y_cursor - 0.30, val, ha='left', va='center',
                     fontsize=9.2, color='#334155')
+            y_cursor -= 0.56
 
-    w_box = 2.45
-    h_box = 3.65
-    y_box = 0.45
+    w_box = 2.18
+    h_box = 3.35
+    y_box = 0.55
 
-    draw_box(0.15, y_box, w_box, h_box, "1", "Raw Telemetry",
-             [("Sensors", "8 cumulative counters"),
-              ("Histograms", "12 operational bin distributions"),
-              ("Specifications", "Chassis and powertrain specs"),
-              ("Fleet Splits", "400 vehicles (250/75/75)")],
+    draw_box(0.12, y_box, w_box, h_box, "1", "Raw Ingestion",
+             [("Operational Counters", "8 cumulative sensor streams"),
+              ("Torque-Speed Bins", "12 operational histograms"),
+              ("Vehicle Metadata", "Categorical chassis & engine specs"),
+              ("Fleet Partitions", "400 trucks (250 / 75 / 75)")],
              c_blue, '#F8FAFC')
 
-    draw_box(2.85, y_box, w_box, h_box, "2", "Causal Engine",
-             [("Causality", "Chronological sorting per truck"),
-              ("Differencing", "Delta_t = x_t - x_{t-1} past-only"),
-              ("Compression", "Signed-log g(Delta) = sgn*ln(1+|Delta|)"),
-              ("Aggregations", "Rolling W in {6, 12, 24} steps")],
+    draw_box(2.62, y_box, w_box, h_box, "2", "Causal Engine",
+             [("Strict Temporal Order", "Chronological sorting per truck"),
+              ("Past-Only Delta", r"$\Delta x_t = x_t - x_{t-1}$ (No leak)"),
+              ("Signed-Log Compression", r"$g(\Delta) = \mathrm{sgn}(\Delta)\ln(1+|\Delta|)$"),
+              ("Rolling Windows", r"Mean, Std, Max over $W \in \{6, 12, 24\}$")],
              c_teal, '#F0FDF4')
 
-    draw_box(5.55, y_box, w_box, h_box, "3", "LightGBM Model",
-             [("Feature Vector", "210 causal temporal channels"),
-              ("Estimators", "150 GBDT trees, max depth 6"),
-              ("Leaves", "31 leaves, histogram bins"),
-              ("Horizon", "Target H = 48 operational hours")],
+    draw_box(5.12, y_box, w_box, h_box, "3", "LightGBM Model",
+             [("Engineered Features", "210 causal temporal channels"),
+              ("Ensemble Estimators", "150 GBDT trees, max depth 6"),
+              ("Leaf Architecture", "31 leaves, histogram binning"),
+              ("Prediction Horizon", "Target H = 48 operational hours")],
              c_amber, '#FFFBEB')
 
-    draw_box(8.25, y_box, w_box, h_box, "4", "Scania Decision",
-             [("Loss Function", "Cost: $500 FN vs $10 FP/TP"),
-              ("Threshold", "Optimal threshold = 0.010 (62.7% savings)"),
-              ("Risk Tiers", "Critical, Warning, Advisory"),
-              ("Operations", "FastAPI server and fleet twin")],
+    draw_box(7.62, y_box, w_box, h_box, "4", "Scania Decision",
+             [("Asymmetric Matrix", "Cost: $500 FN vs $10 FP/TP"),
+              ("Tuned Threshold", r"Optimal $\theta^* = 0.010$ (62.3% savings)"),
+              ("Fleet Risk Tiers", "Critical, Warning, Advisory"),
+              ("Serving & UI", "FastAPI server and twin dashboard")],
              c_purple, '#FAF5FF')
 
-    def draw_arrow(x1, y1, x2, y2, label=""):
-        ax.annotate('', xy=(x2, y2), xytext=(x1, y1),
-                    arrowprops=dict(arrowstyle="-|>", color='#1E293B', lw=2.2, mutation_scale=18))
-        if label:
-            ax.text((x1+x2)/2, y1 + 0.22, label, ha='center', va='bottom',
-                    fontsize=9.2, fontweight='bold', color='#475569')
+    def draw_connector(x1, x2, y_c, label):
+        ax.annotate('', xy=(x2, y_c), xytext=(x1, y_c),
+                    arrowprops=dict(arrowstyle="-|>", color='#1E293B', lw=2.2, mutation_scale=16))
+        # Label pill above arrow
+        w_pill = len(label) * 0.042 + 0.15
+        pill = patches.FancyBboxPatch(((x1+x2)/2 - w_pill/2, y_c + 0.12), w_pill, 0.28,
+                                      boxstyle="round,pad=0.02", ec='#64748B', fc='#F1F5F9', lw=1.0)
+        ax.add_patch(pill)
+        ax.text((x1+x2)/2, y_c + 0.26, label, ha='center', va='center',
+                fontsize=9.2, fontweight='bold', color='#0F172A')
 
-    draw_arrow(2.60, 2.25, 2.85, 2.25, "Causal")
-    draw_arrow(5.30, 2.25, 5.55, 2.25, "210 Feats")
-    draw_arrow(8.00, 2.25, 8.25, 2.25, "p(t)")
+    draw_connector(2.30, 2.62, 2.25, "Streams")
+    draw_connector(4.80, 5.12, 2.25, "210 Feats")
+    draw_connector(7.30, 7.62, 2.25, r"$\hat{p}(t)$")
 
-    ax.set_xlim(0, 10.85)
-    ax.set_ylim(0, 4.35)
+    ax.text(5.0, 4.35, "Four-Stage Causal Telemetry Predictive Maintenance Architecture",
+            ha='center', va='center', fontsize=13.0, fontweight='bold', color='#0F172A')
+
+    ax.set_xlim(0, 9.95)
+    ax.set_ylim(0.2, 4.7)
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig_3_1_system_architecture.png", bbox_inches='tight')
     plt.close()
@@ -128,23 +147,23 @@ def generate_fig_3_1():
 
 
 # ==============================================================================
-# FIGURE 3.2: Preprocessing Flowchart (Clear Mathematical Formulations & Steps)
+# FIGURE 3.2: Preprocessing Flowchart (Clean Math, Spacious, Ample Clearance)
 # ==============================================================================
 def generate_fig_3_2():
-    fig, ax = plt.subplots(figsize=(8.8, 4.2), dpi=300)
+    fig, ax = plt.subplots(figsize=(10.2, 4.8), dpi=300)
     ax.axis('off')
 
     stages = [
-        ("Raw Telemetry", r"$x_t$ sensor stream", "Counters & histograms per vehicle", "#1E3A8A", 0.2),
-        ("Causal Difference", r"$\Delta x_t = x_t - x_{t-1}$", "Strict backward difference", "#0F766E", 2.35),
-        ("Signed-Log", r"$g(\Delta) = \mathrm{sgn}(\Delta)\ln(1+|\Delta|)$", "Heavy-tail compression", "#B45309", 4.5),
-        ("Rolling Stats", r"$W \in \{6, 12, 24\}$", "Mean, std, max over past W", "#6B21A8", 6.65),
-        ("RobustScaler", r"$z = \frac{g - Q_2}{Q_3 - Q_1}$", "Fit strictly on train set", "#991B1B", 8.8)
+        ("1. Raw Stream", r"$x_t$", "Cumulative counters &\n12-bin histograms", "#1E3A8A", 0.15),
+        ("2. Causal Delta", r"$\Delta x_t = x_t - x_{t-1}$", "Backward difference;\nresets on rollbacks", "#0F766E", 2.18),
+        ("3. Signed-Log", r"$g(\Delta) = \mathrm{sgn}(\Delta)\ln(1+|\Delta|)$", "Heavy-tail increment\ncompression", "#B45309", 4.21),
+        ("4. Rolling Stats", r"$W \in \{6, 12, 24\}$", "Past-only Mean, Std,\nand Max aggregations", "#6B21A8", 6.24),
+        ("5. RobustScaler", r"$z = \frac{g - Q_2}{Q_3 - Q_1}$", "Outlier-resilient; scale\nfrozen on Train split", "#991B1B", 8.27)
     ]
 
-    w_box = 1.95
-    h_box = 2.4
-    y_center = 1.8
+    w_box = 1.76
+    h_box = 2.45
+    y_center = 2.45
 
     for title, math_expr, desc, color, x in stages:
         y_bot = y_center - h_box / 2.0
@@ -155,16 +174,22 @@ def generate_fig_3_2():
                                      ec=color, fc='#FFFFFF', lw=2.0)
         ax.add_patch(box)
 
+        # Header area
         ax.text(x + w_box/2.0, y_bot + h_box - 0.28, title, ha='center', va='center',
                 fontsize=10.5, fontweight='bold', color=color)
-        ax.plot([x + 0.1, x + w_box - 0.1], [y_bot + h_box - 0.50, y_bot + h_box - 0.50],
+        ax.plot([x + 0.1, x + w_box - 0.1], [y_bot + h_box - 0.48, y_bot + h_box - 0.48],
                 color=color, lw=1.0, alpha=0.35)
 
-        ax.text(x + w_box/2.0, y_bot + h_box - 1.05, math_expr, ha='center', va='center',
-                fontsize=10.2, fontweight='bold', color='#0F172A')
+        # Math formula pill
+        math_bg = patches.FancyBboxPatch((x + 0.10, y_bot + h_box - 1.25), w_box - 0.20, 0.65,
+                                         boxstyle="round,pad=0.02", ec='#CBD5E1', fc='#F8FAFC', lw=1.0)
+        ax.add_patch(math_bg)
+        ax.text(x + w_box/2.0, y_bot + h_box - 0.92, math_expr, ha='center', va='center',
+                fontsize=9.8, fontweight='bold', color='#0F172A')
 
+        # Description text
         ax.text(x + w_box/2.0, y_bot + 0.45, desc, ha='center', va='center',
-                fontsize=9.0, color='#475569')
+                fontsize=9.0, color='#334155')
 
     for i in range(len(stages) - 1):
         x1 = stages[i][4] + w_box
@@ -172,17 +197,20 @@ def generate_fig_3_2():
         ax.annotate('', xy=(x2, y_center), xytext=(x1, y_center),
                     arrowprops=dict(arrowstyle="-|>", color='#1E293B', lw=2.2, mutation_scale=16))
 
-    ax.text(5.4, 3.7, "Causal Telemetry Preprocessing and Leak-Free Feature Pipeline",
-            ha='center', va='center', fontsize=12.5, fontweight='bold', color='#0F172A')
-    
-    safeguard_box = patches.FancyBboxPatch((0.8, 0.12), 9.2, 0.45, boxstyle="round,pad=0.02",
-                                           ec='#0F766E', fc='#F0FDF4', lw=1.2)
-    ax.add_patch(safeguard_box)
-    ax.text(5.4, 0.35, "Leak-Free Principle: Zero future lookahead at any timestep t; all scale parameters (Q1, Q2, Q3) frozen on training split.",
-            ha='center', va='center', fontsize=9.2, fontweight='bold', color='#0F766E')
+    ax.text(5.1, 4.35, "Strictly Causal Telemetry Preprocessing and Leak-Free Feature Pipeline",
+            ha='center', va='center', fontsize=13.0, fontweight='bold', color='#0F172A')
 
-    ax.set_xlim(0, 10.95)
-    ax.set_ylim(0, 4.1)
+    # Safeguard banner placed well below the stage boxes with ample vertical clearance
+    safeguard_box = patches.FancyBboxPatch((0.45, 0.22), 9.3, 0.55, boxstyle="round,pad=0.03",
+                                           ec='#0F766E', fc='#F0FDF4', lw=1.5)
+    ax.add_patch(safeguard_box)
+    ax.text(5.1, 0.50,
+            "LEAK-FREE SAFEGUARD: Zero future lookahead at any timestep t; all quantile scale parameters\n"
+            r"$(Q_1, Q_2, Q_3)$ are frozen strictly on the training partition and evaluated out-of-sample.",
+            ha='center', va='center', fontsize=9.5, fontweight='bold', color='#065F46')
+
+    ax.set_xlim(0, 10.2)
+    ax.set_ylim(0.05, 4.7)
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig_3_2_preprocessing_flowchart.png", bbox_inches='tight')
     plt.close()
@@ -193,10 +221,10 @@ def generate_fig_3_2():
 # FIGURE 3.3: Training, Validation, and Test Workflow (3 Distinct Panels)
 # ==============================================================================
 def generate_fig_3_3():
-    fig, ax = plt.subplots(figsize=(8.8, 4.3), dpi=300)
+    fig, ax = plt.subplots(figsize=(10.0, 4.8), dpi=300)
     ax.axis('off')
 
-    def draw_split_panel(x, y, w, h, title, veh_cnt, obs_cnt, fail_cnt, role_items, col, bg_col):
+    def draw_split_panel(x, y, w, h, title, veh_cnt, obs_cnt, fail_cnt, pos_rows, role_items, col, bg_col):
         shadow = patches.FancyBboxPatch((x+0.04, y-0.04), w, h, boxstyle="round,pad=0.03",
                                         ec='none', fc='#E2E8F0', alpha=0.6)
         ax.add_patch(shadow)
@@ -204,53 +232,68 @@ def generate_fig_3_3():
                                      ec=col, fc=bg_col, lw=2.2)
         ax.add_patch(box)
 
+        # Title
         ax.text(x + w/2, y + h - 0.30, title, ha='center', va='center',
-                fontsize=11.5, fontweight='bold', color=col)
-        ax.plot([x + 0.12, x + w - 0.12], [y + h - 0.54, y + h - 0.54], color=col, lw=1.0, alpha=0.35)
+                fontsize=11.2, fontweight='bold', color=col)
+        ax.plot([x + 0.12, x + w - 0.12], [y + h - 0.52, y + h - 0.52], color=col, lw=1.0, alpha=0.35)
 
-        ax.text(x + 0.18, y + h - 0.85, f"* Vehicles: {veh_cnt} (Mutually Isolated)", ha='left', va='center',
-                fontsize=9.5, fontweight='bold', color='#1E293B')
-        ax.text(x + 0.18, y + h - 1.20, f"* Observations: {obs_cnt:,} rows", ha='left', va='center',
-                fontsize=9.5, color='#334155')
-        ax.text(x + 0.18, y + h - 1.55, f"* Failure Events: {fail_cnt} trajectories", ha='left', va='center',
-                fontsize=9.5, color='#334155')
+        # Statistics Block
+        stats_bg = patches.FancyBboxPatch((x + 0.12, y + h - 1.68), w - 0.24, 1.05,
+                                          boxstyle="round,pad=0.02", ec='#CBD5E1', fc='#FFFFFF', lw=1.0)
+        ax.add_patch(stats_bg)
 
-        role_box = patches.FancyBboxPatch((x + 0.15, y + 0.18), w - 0.30, 0.95, boxstyle="round,pad=0.02",
+        ax.text(x + 0.20, y + h - 0.76, f"Vehicles: {veh_cnt} (Mutually Isolated)", ha='left', va='center',
+                fontsize=9.6, fontweight='bold', color='#1E293B')
+        ax.text(x + 0.20, y + h - 1.05, f"Telemetry: {obs_cnt:,} observations", ha='left', va='center',
+                fontsize=9.2, color='#334155')
+        ax.text(x + 0.20, y + h - 1.34, f"Failures: {fail_cnt} events ({pos_rows} pos rows)", ha='left', va='center',
+                fontsize=9.2, color='#334155')
+
+        # Role Block
+        role_box = patches.FancyBboxPatch((x + 0.12, y + 0.18), w - 0.24, 0.98, boxstyle="round,pad=0.02",
                                           ec=col, fc='#FFFFFF', lw=1.2)
         ax.add_patch(role_box)
         for idx, item in enumerate(role_items):
-            ax.text(x + w/2, y + 0.90 - idx * 0.38, item, ha='center', va='center',
+            ax.text(x + w/2, y + 0.88 - idx * 0.38, item, ha='center', va='center',
                     fontsize=9.0, fontweight='bold', color=col)
 
-    w_panel = 3.15
-    h_panel = 2.95
+    w_panel = 2.95
+    h_panel = 3.05
     y_panel = 0.55
 
     draw_split_panel(0.2, y_panel, w_panel, h_panel, "1. Training Partition (62.5%)",
-                     250, 27418, 150,
-                     ["Fit Preprocessor & RobustScaler", "Train LightGBM (150 Trees, Depth 6)"],
+                     250, 27418, 150, 644,
+                     ["Fit Causal Preprocessor & RobustScaler", "Train LightGBM (150 Trees, Depth 6)"],
                      "#1E3A8A", "#F8FAFC")
 
-    draw_split_panel(3.8, y_panel, w_panel, h_panel, "2. Validation Partition (18.75%)",
-                     75, 8295, 45,
-                     ["Asymmetric Scania Cost Matrix", "Tune Decision Threshold theta* = 0.010"],
+    draw_split_panel(3.52, y_panel, w_panel, h_panel, "2. Validation Partition (18.75%)",
+                     75, 8295, 45, 198,
+                     ["Asymmetric Scania Cost Matrix ($500/$10)", r"Tune Decision Threshold $\theta^* = 0.010$"],
                      "#0F766E", "#F0FDF4")
 
-    draw_split_panel(7.4, y_panel, w_panel, h_panel, "3. Held-Out Test (18.75%)",
-                     75, 8083, 45,
-                     ["Frozen Final Unbiased Benchmark", "PR-AUC = 0.7893 | ROC = 0.9303"],
+    draw_split_panel(6.84, y_panel, w_panel, h_panel, "3. Held-Out Test (18.75%)",
+                     75, 8083, 45, 192,
+                     ["Frozen Final Unbiased Benchmark", "PR-AUC = 0.7893 | Cost = $24,430"],
                      "#991B1B", "#FEF2F2")
 
-    ax.annotate('', xy=(3.8, 2.0), xytext=(3.35, 2.0),
+    # Connectors between stages
+    ax.annotate('', xy=(3.52, 2.08), xytext=(3.15, 2.08),
                 arrowprops=dict(arrowstyle="-|>", color='#1E293B', lw=2.2, mutation_scale=16))
-    ax.annotate('', xy=(7.4, 2.0), xytext=(6.95, 2.0),
+    ax.annotate('', xy=(6.84, 2.08), xytext=(6.47, 2.08),
                 arrowprops=dict(arrowstyle="-|>", color='#1E293B', lw=2.2, mutation_scale=16))
 
-    ax.text(5.4, 3.8, "Vehicle-Isolated Fleet Partitioning and Leak-Free Training Protocol",
-            ha='center', va='center', fontsize=12.5, fontweight='bold', color='#0F172A')
+    ax.text(5.0, 4.35, "Vehicle-Isolated Fleet Partitioning and Leak-Free Training Protocol",
+            ha='center', va='center', fontsize=13.0, fontweight='bold', color='#0F172A')
 
-    ax.set_xlim(0, 10.75)
-    ax.set_ylim(0, 4.2)
+    # Isolation guarantee banner
+    iso_box = patches.FancyBboxPatch((0.8, 0.08), 8.4, 0.36, boxstyle="round,pad=0.02",
+                                     ec='#475569', fc='#F1F5F9', lw=1.0)
+    ax.add_patch(iso_box)
+    ax.text(5.0, 0.26, "MUTUAL FLEET ISOLATION: Zero vehicle overlap across splits; all time-series evaluated out-of-sample.",
+            ha='center', va='center', fontsize=9.2, fontweight='bold', color='#334155')
+
+    ax.set_xlim(0, 10.0)
+    ax.set_ylim(0.0, 4.7)
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig_3_3_training_pipeline.png", bbox_inches='tight')
     plt.close()
@@ -276,8 +319,8 @@ def generate_fig_4_1():
     op_rec = test_m['recall']
     op_prec = test_m['precision']
     ax.scatter([op_rec], [op_prec], color='#DC2626', s=110, zorder=5,
-               label=f'Optimal theta* = 0.010 (P={op_prec*100:.1f}%, R={op_rec*100:.1f}%)')
-    ax.annotate(f'Operating Point theta*=0.010\nRecall={op_rec*100:.1f}%, Prec={op_prec*100:.1f}%',
+               label=f'Optimal $\\theta^* = 0.010$ (P={op_prec*100:.1f}%, R={op_rec*100:.1f}%)')
+    ax.annotate(f'Operating Point $\\theta^*=0.010$\nRecall={op_rec*100:.1f}%, Prec={op_prec*100:.1f}%',
                 xy=(op_rec, op_prec), xytext=(op_rec - 0.34, op_prec - 0.18),
                 arrowprops=dict(arrowstyle='-|>', color='#DC2626', lw=1.8),
                 fontsize=9.5, fontweight='bold', color='#991B1B',
@@ -320,8 +363,8 @@ def generate_fig_4_2():
     op_fpr = 144.0 / (7747.0 + 144.0)
     op_tpr = test_m['recall']
     ax.scatter([op_fpr], [op_tpr], color='#DC2626', s=110, zorder=5,
-               label=f'Optimal theta* = 0.010 (FPR={op_fpr*100:.1f}%, TPR={op_tpr*100:.1f}%)')
-    ax.annotate(f'Operating Point theta*=0.010\nFPR={op_fpr*100:.2f}%, TPR={op_tpr*100:.1f}%',
+               label=f'Optimal $\\theta^* = 0.010$ (FPR={op_fpr*100:.1f}%, TPR={op_tpr*100:.1f}%)')
+    ax.annotate(f'Operating Point $\\theta^*=0.010$\nFPR={op_fpr*100:.2f}%, TPR={op_tpr*100:.1f}%',
                 xy=(op_fpr, op_tpr), xytext=(op_fpr + 0.16, op_tpr - 0.20),
                 arrowprops=dict(arrowstyle='-|>', color='#DC2626', lw=1.8),
                 fontsize=9.5, fontweight='bold', color='#991B1B',
@@ -342,10 +385,10 @@ def generate_fig_4_2():
 
 
 # ==============================================================================
-# FIGURE 4.3: Confusion Matrix (Four Large Readable Cells)
+# FIGURE 4.3: Confusion Matrix (Four Large Readable Quadrants with Dollar Costs)
 # ==============================================================================
 def generate_fig_4_3():
-    fig, ax = plt.subplots(figsize=(6.4, 4.0), dpi=300)
+    fig, ax = plt.subplots(figsize=(6.6, 4.2), dpi=300)
 
     cm = np.array([
         [test_m['true_negatives'], test_m['false_positives']],
@@ -353,7 +396,7 @@ def generate_fig_4_3():
     ])
 
     annot = [
-        [f"True Negative (TN)\n{cm[0,0]:,} Trucks\n(98.18% Correct Healthy)\nCost: $0",
+        [f"True Negative (TN)\n{cm[0,0]:,} Trucks\n(98.18% Correct Healthy)\nPenalty: $0",
          f"False Positive (FP)\n{cm[0,1]:,} Trucks\n(False Maintenance Alarm)\nCost: 144 x $10 = $1,440"],
         [f"False Negative (FN)\n{cm[1,0]:,} Trucks\n(Missed Powertrain Breakdown)\nCost: 43 x $500 = $21,500",
          f"True Positive (TP)\n{cm[1,1]:,} Trucks\n(Proactive Repair Success)\nCost: 149 x $10 = $1,490"]
@@ -361,11 +404,11 @@ def generate_fig_4_3():
 
     sns.heatmap(cm, annot=annot, fmt='', cmap='Blues', cbar=False, ax=ax,
                 linewidths=3.0, linecolor='#1E293B',
-                annot_kws={'fontsize': 10.0, 'fontweight': 'bold', 'va': 'center'})
+                annot_kws={'fontsize': 10.2, 'fontweight': 'bold', 'va': 'center'})
 
     ax.set_xticklabels(['Predicted: HEALTHY (0)', 'Predicted: FAILURE RISK (1)'], fontsize=11, fontweight='bold')
     ax.set_yticklabels(['True: HEALTHY (0)', 'True: FAILING (1)'], fontsize=11, fontweight='bold', va='center')
-    ax.set_title(f'Held-Out Test Confusion Matrix at theta* = 0.010\nTotal Fleet Maintenance Cost: ${test_m["total_cost"]:,.2f} (8,083 Evaluations)',
+    ax.set_title(r'Held-Out Test Confusion Matrix at $\theta^* = 0.010$' + f'\nTotal Fleet Maintenance Cost: ${test_m["total_cost"]:,.2f} (8,083 Evaluations)',
                  fontsize=12, fontweight='bold', pad=12)
 
     plt.tight_layout()
@@ -375,12 +418,13 @@ def generate_fig_4_3():
 
 
 # ==============================================================================
-# FIGURE 4.4: Cost Comparison Bar Chart (6.4 x 3.8 in)
+# FIGURE 4.4: Cost Comparison Bar Chart (Default $64,860 vs Cost-Optimal $24,430)
 # ==============================================================================
 def generate_fig_4_4():
     fig, ax = plt.subplots(figsize=(6.4, 3.8), dpi=300)
 
-    models = ['Default Threshold\n(theta = 0.50)', 'Scania Cost-Optimized\n(theta* = 0.010)']
+    models = [r'Default Threshold' + '\n' + r'($\theta = 0.50$)',
+              r'Scania Cost-Optimized' + '\n' + r'($\theta^* = 0.010$)']
     fn_costs = [128 * 500, 43 * 500]
     fp_tp_costs = [22 * 10 + 64 * 10, 144 * 10 + 149 * 10]
 
@@ -393,15 +437,14 @@ def generate_fig_4_4():
 
     total_default = fn_costs[0] + fp_tp_costs[0]
     total_opt = fn_costs[1] + fp_tp_costs[1]
-    reduction = (total_default - total_opt) / total_default * 100.0
 
-    ax.text(x[0], total_default + 1800, f'${total_default:,}\n(128 Catastrophic FN)', ha='center', va='bottom',
+    ax.text(x[0], total_default + 1800, f'${total_default:,}\n(128 Missed FN)', ha='center', va='bottom',
             fontweight='bold', fontsize=10.2, color='#991B1B')
     ax.text(x[1], total_opt + 1800, f'${total_opt:,}\n(Only 43 Missed FN)', ha='center', va='bottom',
             fontweight='bold', fontsize=10.2, color='#15803D')
 
-    ax.annotate(f'62.7% Fleet Cost Reduction\n($40,990 Financial Savings)',
-                xy=(x[1], total_opt + 6000), xytext=(x[0] + 0.32, total_default - 18000),
+    ax.annotate('62.3% Fleet Cost Reduction\n($40,430 Financial Savings)',
+                xy=(x[1], total_opt + 6000), xytext=(x[0] + 0.30, total_default - 18000),
                 arrowprops=dict(arrowstyle='-|>', color='#15803D', lw=2.2),
                 fontsize=10.5, fontweight='bold', color='#15803D',
                 bbox=dict(boxstyle='round,pad=0.4', fc='#DCFCE7', ec='#15803D', lw=1.4))
@@ -435,11 +478,11 @@ def generate_fig_4_5():
     f1 = 2 * (precision * recall) / (precision + recall + 1e-6)
 
     color_cost = '#DC2626'
-    ax1.set_xlabel('Decision Threshold (theta)', fontweight='bold')
+    ax1.set_xlabel(r'Decision Threshold ($\theta$)', fontweight='bold')
     ax1.set_ylabel('Scania Industrial Cost ($)', color=color_cost, fontweight='bold')
     line1 = ax1.plot(thresholds, cost, color=color_cost, lw=2.6, label='Scania Total Cost ($)')
     ax1.tick_params(axis='y', labelcolor=color_cost)
-    ax1.axvline(0.010, color='#15803D', ls='--', lw=2.2, label='Optimal theta* = 0.010')
+    ax1.axvline(0.010, color='#15803D', ls='--', lw=2.2, label=r'Optimal $\theta^* = 0.010$')
 
     ax2 = ax1.twinx()
     color_prec = '#2563EB'
@@ -456,7 +499,7 @@ def generate_fig_4_5():
     labels = [l.get_label() for l in lines]
     ax1.legend(lines, labels, loc='center right', frameon=True, framealpha=0.92, facecolor='#FFFFFF')
 
-    ax1.set_title('Threshold Optimisation: Asymmetric Cost vs Classification Metrics', fontweight='bold', pad=10)
+    ax1.set_title(r'Threshold Optimisation: Asymmetric Cost vs Classification Metrics', fontweight='bold', pad=10)
     ax1.grid(True, ls='--', alpha=0.45)
 
     plt.tight_layout()
@@ -470,9 +513,6 @@ def generate_fig_4_5():
 # ==============================================================================
 def generate_fig_4_6():
     fig, ax = plt.subplots(figsize=(7.2, 4.4), dpi=300)
-
-    feats = [item['feature'] for item in top_feats[:12]]
-    scores = [item['importance'] for item in top_feats[:12]]
 
     clean_labels = [
         "Counter 07 (Delta-Log Std, W=24)",
@@ -488,6 +528,7 @@ def generate_fig_4_6():
         "Vehicle Operational Age (Steps)",
         "Histogram 02 (Delta-Log Std, W=12)"
     ]
+    scores = [item['importance'] for item in top_feats[:12]]
 
     y_pos = np.arange(len(clean_labels))
     colors_list = plt.cm.Blues_r(np.linspace(0.15, 0.75, len(clean_labels)))
@@ -538,7 +579,7 @@ def generate_fig_4_7():
     ax.axvspan(72, 120, color='#FEE2E2', alpha=0.5, label='Ground-Truth Horizon (H=48 Hours to Failure)')
     ax.axvline(120, color='#991B1B', ls='-', lw=2.5, label='Component Breakdown (t=120)')
 
-    ax.axhline(0.010, color='#B45309', ls='--', lw=2.0, label='Optimal Threshold theta* = 0.010')
+    ax.axhline(0.010, color='#B45309', ls='--', lw=2.0, label=r'Optimal Threshold $\theta^* = 0.010$')
 
     ax.annotate('Proactive Alert Triggered (t=88)\n(32 Hours Advance Lead-Time)',
                 xy=(88, 0.010), xytext=(35, 0.35),
@@ -547,7 +588,7 @@ def generate_fig_4_7():
                 bbox=dict(boxstyle='round,pad=0.35', fc='#FEF3C7', ec='#B45309', lw=1.2))
 
     ax.set_xlabel('Operational Telemetry Time Steps (Hours)', fontweight='bold')
-    ax.set_ylabel('Predicted Failure Probability p(t)', fontweight='bold')
+    ax.set_ylabel(r'Predicted Failure Probability $\hat{p}(t)$', fontweight='bold')
     ax.set_title('Longitudinal Failure Risk Trajectory: Failing vs Healthy Vehicle', fontweight='bold', pad=10)
     ax.set_xlim([0, 122])
     ax.set_ylim([0.0, 1.05])
@@ -561,7 +602,7 @@ def generate_fig_4_7():
 
 
 if __name__ == "__main__":
-    print("Regenerating all 11 figures with upgraded academic specifications...")
+    print("Regenerating all figures with upgraded academic specifications...")
     generate_fig_3_1()
     generate_fig_3_2()
     generate_fig_3_3()
