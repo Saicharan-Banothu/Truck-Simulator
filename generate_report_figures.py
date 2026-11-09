@@ -44,7 +44,7 @@ top_feats = metadata['top_features']
 # FIGURE 3.1: System Architecture (Spacious, Legible, No Overlaps, Content-Aware)
 # ==============================================================================
 def generate_fig_3_1():
-    fig, ax = plt.subplots(figsize=(10.0, 4.8), dpi=300)
+    fig, ax = plt.subplots(figsize=(12.0, 4.8), dpi=300)
     ax.axis('off')
 
     c_blue = '#1E3A8A'
@@ -52,93 +52,86 @@ def generate_fig_3_1():
     c_amber = '#B45309'
     c_purple = '#6B21A8'
 
-    def draw_box(x, y, w, h, stage_num, title, items, color, bg_col):
-        # Drop shadow
-        shadow = patches.FancyBboxPatch((x+0.04, y-0.04), w, h, boxstyle="round,pad=0.03",
-                                        ec='none', fc='#CBD5E1', alpha=0.55)
-        ax.add_patch(shadow)
-        # Main container
-        box = patches.FancyBboxPatch((x, y), w, h, boxstyle="round,pad=0.03",
-                                     ec=color, fc=bg_col, lw=2.2)
-        ax.add_patch(box)
-
-        # Stage Number Pill
-        pill = patches.FancyBboxPatch((x + 0.10, y + h - 0.40), 0.46, 0.28, boxstyle="round,pad=0.02",
-                                      ec=color, fc=color)
-        ax.add_patch(pill)
-        ax.text(x + 0.33, y + h - 0.26, stage_num, ha='center', va='center',
-                fontsize=11.0, fontweight='bold', color='#FFFFFF')
-
-        # Stage Title
-        ax.text(x + 0.64, y + h - 0.26, title, ha='left', va='center',
-                fontsize=11.2, fontweight='bold', color=color)
-
-        # Separator line
-        ax.plot([x + 0.10, x + w - 0.10], [y + h - 0.48, y + h - 0.48], color=color, lw=1.2, alpha=0.4)
-
-        # Item cards
-        y_cursor = y + h - 0.76
-        for label, val in items:
-            card = patches.FancyBboxPatch((x + 0.08, y_cursor - 0.42), w - 0.16, 0.46,
-                                          boxstyle="round,pad=0.02", ec='#E2E8F0', fc='#FFFFFF', lw=1.0)
-            ax.add_patch(card)
-            ax.text(x + 0.14, y_cursor - 0.10, label, ha='left', va='center',
-                    fontsize=9.8, fontweight='bold', color='#0F172A')
-            ax.text(x + 0.14, y_cursor - 0.30, val, ha='left', va='center',
-                    fontsize=9.2, color='#334155')
-            y_cursor -= 0.56
-
-    w_box = 2.18
+    w_box = 2.30
     h_box = 3.35
     y_box = 0.55
 
-    draw_box(0.12, y_box, w_box, h_box, "1", "Raw Ingestion",
-             [("Operational Counters", "8 cumulative sensor streams"),
-              ("Torque-Speed Bins", "12 operational histograms"),
-              ("Vehicle Metadata", "Categorical chassis & engine specs"),
-              ("Fleet Partitions", "400 trucks (250 / 75 / 75)")],
-             c_blue, '#F8FAFC')
+    boxes_data = [
+        (0.35, '1', 'Raw Ingestion', [
+            ('Operational Counters', '8 cumulative wear counters'),
+            ('Torque-Speed Bins', '12 operational histograms'),
+            ('Vehicle Specifications', 'Chassis & powertrain metadata'),
+            ('Fleet Partitions', '400 trucks (250 / 75 / 75 splits)')
+        ], c_blue, '#F8FAFC'),
+        (3.35, '2', 'Causal Engine', [
+            ('Temporal Ordering', 'Chronological sort per truck'),
+            ('Past-Only Difference', r'$\Delta x_t = x_t - x_{t-1}$ (zero leak)'),
+            ('Signed-Log Compression', r'$g(\Delta) = \mathrm{sgn}(\Delta)\ln(1+|\Delta|)$'),
+            ('Multi-Window Rolling', r'Mean, Std, Max: $W \in \{6, 12, 24\}$')
+        ], c_teal, '#F0FDF4'),
+        (6.35, '3', 'LightGBM Model', [
+            ('Feature Representation', '210 causal temporal channels'),
+            ('Ensemble Estimators', '150 GBDT trees, max depth 6'),
+            ('Leaf Architecture', '31 leaves, histogram binning'),
+            ('Prediction Horizon', 'Target horizon H = 48 hours')
+        ], c_amber, '#FFFBEB'),
+        (9.35, '4', 'Scania Decision', [
+            ('Asymmetric Cost Matrix', r'Penalty: \$500 FN vs \$10 FP/TP'),
+            ('Cost-Optimal Threshold', r'Optimal $\theta^* = 0.010$ (62.3% savings)'),
+            ('Operational Risk Tiers', 'Critical, Warning, Advisory'),
+            ('Production Dispatch', 'FastAPI REST & twin dashboard')
+        ], c_purple, '#FAF5FF')
+    ]
 
-    draw_box(2.62, y_box, w_box, h_box, "2", "Causal Engine",
-             [("Strict Temporal Order", "Chronological sorting per truck"),
-              ("Past-Only Delta", r"$\Delta x_t = x_t - x_{t-1}$ (No leak)"),
-              ("Signed-Log Compression", r"$g(\Delta) = \mathrm{sgn}(\Delta)\ln(1+|\Delta|)$"),
-              ("Rolling Windows", r"Mean, Std, Max over $W \in \{6, 12, 24\}$")],
-             c_teal, '#F0FDF4')
+    for x, stage_num, title, items, color, bg_col in boxes_data:
+        shadow = patches.FancyBboxPatch((x+0.04, y_box-0.04), w_box, h_box, boxstyle='round,pad=0.03',
+                                        ec='none', fc='#CBD5E1', alpha=0.55)
+        ax.add_patch(shadow)
+        box = patches.FancyBboxPatch((x, y_box), w_box, h_box, boxstyle='round,pad=0.03',
+                                     ec=color, fc=bg_col, lw=2.2)
+        ax.add_patch(box)
 
-    draw_box(5.12, y_box, w_box, h_box, "3", "LightGBM Model",
-             [("Engineered Features", "210 causal temporal channels"),
-              ("Ensemble Estimators", "150 GBDT trees, max depth 6"),
-              ("Leaf Architecture", "31 leaves, histogram binning"),
-              ("Prediction Horizon", "Target H = 48 operational hours")],
-             c_amber, '#FFFBEB')
+        pill = patches.FancyBboxPatch((x + 0.10, y_box + h_box - 0.40), 0.42, 0.28, boxstyle='round,pad=0.02',
+                                      ec=color, fc=color)
+        ax.add_patch(pill)
+        ax.text(x + 0.31, y_box + h_box - 0.26, stage_num, ha='center', va='center',
+                fontsize=11.0, fontweight='bold', color='#FFFFFF')
 
-    draw_box(7.62, y_box, w_box, h_box, "4", "Scania Decision",
-             [("Asymmetric Matrix", "Cost: $500 FN vs $10 FP/TP"),
-              ("Tuned Threshold", r"Optimal $\theta^* = 0.010$ (62.3% savings)"),
-              ("Fleet Risk Tiers", "Critical, Warning, Advisory"),
-              ("Serving & UI", "FastAPI server and twin dashboard")],
-             c_purple, '#FAF5FF')
+        ax.text(x + 0.58, y_box + h_box - 0.26, title, ha='left', va='center',
+                fontsize=11.0, fontweight='bold', color=color)
+
+        ax.plot([x + 0.10, x + w_box - 0.10], [y_box + h_box - 0.48, y_box + h_box - 0.48], color=color, lw=1.2, alpha=0.4)
+
+        y_cursor = y_box + h_box - 0.74
+        for label, val in items:
+            card = patches.FancyBboxPatch((x + 0.09, y_cursor - 0.42), w_box - 0.18, 0.46,
+                                          boxstyle='round,pad=0.02', ec='#E2E8F0', fc='#FFFFFF', lw=1.0)
+            ax.add_patch(card)
+            ax.text(x + 0.15, y_cursor - 0.10, label, ha='left', va='center',
+                    fontsize=9.2, fontweight='bold', color='#0F172A')
+            ax.text(x + 0.15, y_cursor - 0.29, val, ha='left', va='center',
+                    fontsize=8.6, color='#334155')
+            y_cursor -= 0.55
 
     def draw_connector(x1, x2, y_c, label):
-        ax.annotate('', xy=(x2, y_c), xytext=(x1, y_c),
-                    arrowprops=dict(arrowstyle="-|>", color='#1E293B', lw=2.2, mutation_scale=16))
-        # Label pill above arrow
-        w_pill = len(label) * 0.042 + 0.15
-        pill = patches.FancyBboxPatch(((x1+x2)/2 - w_pill/2, y_c + 0.12), w_pill, 0.28,
-                                      boxstyle="round,pad=0.02", ec='#64748B', fc='#F1F5F9', lw=1.0)
+        ax.annotate('', xy=(x2 - 0.06, y_c), xytext=(x1 + 0.06, y_c),
+                    arrowprops=dict(arrowstyle='-|>', color='#1E293B', lw=2.2, mutation_scale=16))
+        w_pill = 0.50
+        mid_x = (x1 + x2) / 2.0
+        pill = patches.FancyBboxPatch((mid_x - w_pill/2.0, y_c + 0.15), w_pill, 0.28,
+                                      boxstyle='round,pad=0.02', ec='#64748B', fc='#F1F5F9', lw=1.0)
         ax.add_patch(pill)
-        ax.text((x1+x2)/2, y_c + 0.26, label, ha='center', va='center',
-                fontsize=9.2, fontweight='bold', color='#0F172A')
+        ax.text(mid_x, y_c + 0.29, label, ha='center', va='center',
+                fontsize=9.0, fontweight='bold', color='#0F172A')
 
-    draw_connector(2.30, 2.62, 2.25, "Streams")
-    draw_connector(4.80, 5.12, 2.25, "210 Feats")
-    draw_connector(7.30, 7.62, 2.25, r"$\hat{p}(t)$")
+    draw_connector(2.65, 3.35, 2.05, 'Streams')
+    draw_connector(5.65, 6.35, 2.05, '210 Feats')
+    draw_connector(8.65, 9.35, 2.05, r'$\hat{p}(t)$')
 
-    ax.text(5.0, 4.35, "Four-Stage Causal Telemetry Predictive Maintenance Architecture",
-            ha='center', va='center', fontsize=13.0, fontweight='bold', color='#0F172A')
+    ax.text(6.0, 4.35, 'Four-Stage Causal Telemetry Predictive Maintenance Architecture',
+        ha='center', va='center', fontsize=13.0, fontweight='bold', color='#0F172A')
 
-    ax.set_xlim(0, 9.95)
+    ax.set_xlim(0, 12.0)
     ax.set_ylim(0.2, 4.7)
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig_3_1_system_architecture.png", bbox_inches='tight')

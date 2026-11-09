@@ -691,7 +691,7 @@ def create_report(output_filename=PRIMARY_OUTPUT_PDF):
 
     fig_3_1_path = "report_figures/fig_3_1_system_architecture.png"
     if os.path.exists(fig_3_1_path):
-        story.append(Image(fig_3_1_path, width=460.0, height=220.0, hAlign='CENTER'))
+        story.append(Image(fig_3_1_path, width=460.0, height=184.0, hAlign='CENTER'))
     story.append(Paragraph("Figure 3.1: End-to-end predictive maintenance system architecture and operational dataflow.", caption_style))
     story.append(Spacer(1, 4))
 
