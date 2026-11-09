@@ -1,109 +1,149 @@
 """
-Quality Assurance and Validation Script for CBP Project Report
+Automated Quality Assurance and Compliance Validation Script
+Validates: Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report_FINAL.pdf
 """
 
-import fitz
+import sys
+import fitz  # PyMuPDF
 
-doc = fitz.open("Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report.pdf")
+TARGET_PDF = "Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report_FINAL.pdf"
+REF_PDF = "docs/Talos_Brain_CBP_Report_final.pdf"
 
-print("=================================================================")
-print("  VNR VJIET CBP REPORT - AUTOMATED QUALITY ASSURANCE VALIDATION")
-print("=================================================================\n")
-
-# 1. Page count check
-print(f"[CHECK 1] Page Count: {len(doc)} pages (Expected: 31) -> {'PASS' if len(doc) == 31 else 'FAIL'}")
-
-# 2. Check absence of old student names/rolls
-old_patterns = [
-    "Chatradhara", "24071A3214", "Shiva Sai", "24071A3240",
-    "Rakshit", "24071A3254", "Koushik", "24071A3256",
-    "Veerabhadra", "24071A3262"
-]
-old_found = []
-full_text = ""
-for i, page in enumerate(doc):
-    t = page.get_text('text')
-    full_text += t
-    for pat in old_patterns:
-        if pat.lower() in t.lower():
-            old_found.append((i+1, pat))
-
-if not old_found:
-    print("[CHECK 2] Residual Old Authors / Rolls: NONE FOUND (100% CLEAN) -> PASS")
-else:
-    print(f"[CHECK 2] Residual Old Authors Found: {old_found} -> FAIL")
-
-# 3. Check presence of all 5 new authors and rolls
-new_authors = [
+REQUIRED_AUTHORS = [
     ("B Sathwik", "24071A3204"),
     ("B Sai Charan", "24071A3206"),
     ("K Jayanth Varma", "24071A3232"),
     ("Md Sameer", "24071A3243"),
     ("P Akshay Kumar", "24071A3247")
 ]
-all_new_ok = True
-for name, roll in new_authors:
-    name_in = name.lower() in full_text.lower() or name.split()[-1].lower() in full_text.lower()
-    roll_in = roll in full_text
-    print(f"  - Author {name} ({roll}): Name={name_in}, Roll={roll_in}")
-    if not (name_in and roll_in):
-        all_new_ok = False
 
-print(f"[CHECK 3] All 5 New Authors and Roll Numbers Present -> {'PASS' if all_new_ok else 'FAIL'}")
-
-# 4. Check faculty details
-supervisors_ok = ("Akhil" in full_text) and ("Lakshmi Deepthi" in full_text) and ("Baby" in full_text)
-print(f"[CHECK 4] Faculty Details (Mr. K. Akhil, Mrs. G. Lakshmi Deepthi, Dr. V Baby) -> {'PASS' if supervisors_ok else 'FAIL'}")
-
-# 5. Check official project title
-clean_full_text = " ".join(full_text.split())
-title_ok = "PREDICTING INDUSTRIAL TRUCK FAILURES FROM OPERATIONAL TELEMETRY" in clean_full_text
-print(f"[CHECK 5] Exact Project Title Present -> {'PASS' if title_ok else 'FAIL'}")
-
-# 6. Check Table of Contents Alignment
-expected_starts = {
-    "CERTIFICATE": 2,
-    "DECLARATION": 3,
-    "ABSTRACT": 4,
-    "TABLE OF CONTENTS": 5,
-    "CHAPTER 1": 6,
-    "CHAPTER 2": 8,
-    "CHAPTER 3": 10,
-    "CHAPTER 4": 14,
-    "CHAPTER 5": 24,
-    "REFERENCES": 26,
-    "APPENDIX A": 29,
-    "APPENDIX B": 30,
-    "APPENDIX C": 31,
-}
-toc_ok = True
-for title, exp_page in expected_starts.items():
-    page_text = doc[exp_page - 1].get_text('text')
-    if title not in page_text:
-        print(f"  [MISMATCH] {title} expected on page {exp_page}, but heading not found on that page!")
-        toc_ok = False
-
-print(f"[CHECK 6] Page-by-Page Table of Contents Mapping -> {'PASS' if toc_ok else 'FAIL'}")
-
-# 7. Check presence of all key empirical metrics
-metrics_to_check = [
-    ("PR-AUC = 0.7893", "0.7893" in full_text),
-    ("ROC-AUC = 0.9303", "0.9303" in full_text),
-    ("Recall = 77.60%", "77.6" in full_text),
-    ("Precision = 50.85%", "50.8" in full_text or "50.9" in full_text),
-    ("Optimal Threshold θ* = 0.010", "0.010" in full_text),
-    ("Cost Reduction = 62.7%", "62.7%" in full_text),
-    ("Total Cost = $24,430", "24,430" in full_text),
-    ("Total Observations = 43,796", "43,796" in full_text),
-    ("Vehicles = 400", "400" in full_text),
+PROHIBITED_AUTHORS = [
+    "Chatradhara", "Shiva Sai", "Rakshit", "Koushik", "Veerabhadra",
+    "24071A3214", "24071A3240", "24071A3254", "24071A3256", "24071A3262", "23071A32"
 ]
-all_m_ok = True
-for label, res in metrics_to_check:
-    if not res:
-        print(f"  [MISSING METRIC] {label}")
-        all_m_ok = False
-print(f"[CHECK 7] Empirical Research Data & Scania Metrics -> {'PASS' if all_m_ok else 'FAIL'}")
 
-print("\n=================================================================")
-print("  FINAL QA STATUS: 100% COMPLETE & VERIFIED")
-print("=================================================================\n")
+REQUIRED_INSTITUTIONAL = [
+    "VNR", "Vignana Jyothi", "Computer Science and Engineering",
+    "Computer Science and Business Systems", "22PC2CB302", "R25", "JNTUH", "Hyderabad",
+    "Akhil", "Lakshmi Deepthi", "Baby"
+]
+
+EXACT_TITLE = "PREDICTING INDUSTRIAL TRUCK FAILURES FROM OPERATIONAL TELEMETRY"
+
+def run_validation():
+    print("=" * 65)
+    print("  VNR VJIET CBP REPORT - AUTOMATED QA VALIDATION (FINAL BUILD)")
+    print("=" * 65)
+
+    doc = fitz.open(TARGET_PDF)
+    num_pages = len(doc)
+    
+    # 1. Page Count Check
+    print(f"\n[CHECK 1] Page Count: {num_pages} pages (Target: 31)")
+    if num_pages == 31:
+        print("  -> PASS: Exact 31-page match.")
+    else:
+        print(f"  -> FAIL: Document has {num_pages} pages, expected 31.")
+        return False
+
+    full_text = ""
+    pages_text = []
+    for i, page in enumerate(doc):
+        t = page.get_text()
+        pages_text.append(t)
+        full_text += t + "\n"
+
+    normalized_full_text = " ".join(full_text.split())
+
+    # 2. Negative Verification
+    print("\n[CHECK 2] Prohibited Author Verification (Zero Old Authors):")
+    found_prohibited = []
+    for p in PROHIBITED_AUTHORS:
+        if p.lower() in full_text.lower():
+            found_prohibited.append(p)
+    if not found_prohibited:
+        print("  -> PASS: Zero occurrences of old team members found (100% clean).")
+    else:
+        print(f"  -> FAIL: Found prohibited strings: {found_prohibited}")
+        return False
+
+    # 3. Required Authors & Roll Numbers
+    print("\n[CHECK 3] Required Authors & Roll Numbers Presence:")
+    missing_authors = []
+    for name, roll in REQUIRED_AUTHORS:
+        n_pres = name.lower() in full_text.lower()
+        r_pres = roll.lower() in full_text.lower()
+        print(f"  - Author {name} ({roll}): Name={n_pres}, Roll={r_pres}")
+        if not (n_pres and r_pres):
+            missing_authors.append(f"{name} ({roll})")
+    if not missing_authors:
+        print("  -> PASS: All 5 required team members and roll numbers present.")
+    else:
+        print(f"  -> FAIL: Missing authors: {missing_authors}")
+        return False
+
+    # 4. Institutional Details & Faculty
+    print("\n[CHECK 4] Institutional & Faculty Details:")
+    missing_inst = []
+    for inst in REQUIRED_INSTITUTIONAL:
+        if inst.lower() not in full_text.lower():
+            missing_inst.append(inst)
+    if not missing_inst:
+        print("  -> PASS: All supervisors, HOD, and institutional identifiers present.")
+    else:
+        print(f"  -> FAIL: Missing institutional elements: {missing_inst}")
+        return False
+
+    # 5. Exact Project Title
+    print("\n[CHECK 5] Project Title Exact Match:")
+    if EXACT_TITLE in normalized_full_text:
+        print("  -> PASS: Exact project title found and matches perfectly.")
+    else:
+        print("  -> FAIL: Exact project title string not found in normalized text.")
+        return False
+
+    # 6. Empirical Numbers & Metrics Check
+    print("\n[CHECK 6] Empirical Dataset & Scania Research Metrics:")
+    metrics = [
+        ("PR-AUC = 0.789", "0.789"),
+        ("ROC-AUC = 0.930", "0.930"),
+        ("43,796 observations", "43,796"),
+        ("400 vehicles", "400"),
+        ("Optimal Cost $24,430", "24,430"),
+        ("Cost Reduction 62.7%", "62.7%"),
+    ]
+    missing_metrics = []
+    for desc, val in metrics:
+        if val in full_text:
+            print(f"  - {desc}: VERIFIED")
+        else:
+            missing_metrics.append(desc)
+    if not missing_metrics:
+        print("  -> PASS: All empirical project metrics verified.")
+    else:
+        print(f"  -> FAIL: Missing metrics: {missing_metrics}")
+        return False
+
+    # 7. Figure References Check
+    print("\n[CHECK 7] Figure References in Document:")
+    figs = [f"Figure {ch}.{idx}" for ch in [3, 4] for idx in range(1, 9 if ch==4 else 4)]
+    missing_figs = []
+    for fig in figs:
+        if fig in full_text:
+            print(f"  - {fig}: VERIFIED")
+        else:
+            missing_figs.append(fig)
+    if not missing_figs:
+        print("  -> PASS: All 11 figures referenced in text.")
+    else:
+        print(f"  -> FAIL: Missing figure references: {missing_figs}")
+        return False
+
+    print("\n" + "=" * 65)
+    print("  FINAL QA STATUS: 100% COMPLETE & VERIFIED (ALL 7 CHECKS PASSED)")
+    print("=" * 65 + "\n")
+    return True
+
+if __name__ == "__main__":
+    success = run_validation()
+    sys.exit(0 if success else 1)

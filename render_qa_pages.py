@@ -1,20 +1,24 @@
 """
-Render every page of the generated report to high-resolution PNGs for QA inspection.
+Render all 31 pages of the final PDF to PNG images for visual QA inspection.
 """
 
-import os
-import fitz
+import fitz  # PyMuPDF
+from pathlib import Path
 
-OUTPUT_DIR = "generated_page_renders"
-os.makedirs(OUTPUT_DIR, exist_ok=True)
+PDF_PATH = "Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report_FINAL.pdf"
+OUTPUT_DIR = Path("generated_page_renders")
+OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-doc = fitz.open("Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report.pdf")
-print(f"Rendering {len(doc)} pages...")
+doc = fitz.open(PDF_PATH)
+print(f"Rendering {len(doc)} pages of {PDF_PATH} at 150 DPI...")
 
 for i, page in enumerate(doc):
-    pix = page.get_pixmap(dpi=150)
-    out_path = os.path.join(OUTPUT_DIR, f"page_{i+1:02d}.png")
-    pix.save(out_path)
-    print(f"Rendered {out_path} ({pix.width}x{pix.height})")
+    # Render at 150 DPI (zoom = 150 / 72 ≈ 2.0833)
+    zoom = 150.0 / 72.0
+    mat = fitz.Matrix(zoom, zoom)
+    pix = page.get_pixmap(matrix=mat)
+    out_file = OUTPUT_DIR / f"page_{i+1:02d}.png"
+    pix.save(str(out_file))
+    print(f"Saved {out_file.name} ({pix.width}x{pix.height})")
 
-print("Rendering complete.")
+print("Rendering complete!")
