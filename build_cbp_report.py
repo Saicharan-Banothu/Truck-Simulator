@@ -3,7 +3,7 @@ Comprehensive Academic CBP Project Report Generator - SECOND ITERATION FINAL REC
 PREDICTING INDUSTRIAL TRUCK FAILURES FROM OPERATIONAL TELEMETRY
 VNR Vignana Jyothi Institute of Engineering & Technology
 Department of Computer Science and Engineering
-Academic Regulation R25 | OCTOBER 2026
+Academic Regulation R22 | OCTOBER 2026
 """
 
 import os
@@ -294,7 +294,7 @@ def create_report(output_filename=PRIMARY_OUTPUT_PDF):
     cert_body_2 = (
         "in partial fulfillment of the requirements for the award of the degree of Bachelor of Technology (B.Tech.) in "
         "<b>COMPUTER SCIENCE AND BUSINESS SYSTEMS</b> of <b>Jawaharlal Nehru Technological University Hyderabad (JNTUH)</b>, "
-        "under <b>VNRVJIET B.Tech. R25 Academic Regulations</b>. The work has been carried out under our guidance and supervision at "
+        "under <b>VNRVJIET B.Tech. R22 Academic Regulations</b>. The work has been carried out under our guidance and supervision at "
         "Vallurupalli Nageswara Rao Vignana Jyothi Institute of Engineering & Technology, Hyderabad."
     )
     story.append(Paragraph(cert_body_2, body_text))
@@ -341,7 +341,7 @@ def create_report(output_filename=PRIMARY_OUTPUT_PDF):
         "We, the undersigned, declare that the Project titled “<font color=\"#FF0000\"><b>PREDICTING INDUSTRIAL "
         "TRUCK FAILURES FROM OPERATIONAL TELEMETRY</b></font>” has been carried out by us in partial fulfillment of the requirements "
         "for the award of the degree of Bachelor of Technology (B.Tech.) in <b>COMPUTER SCIENCE AND BUSINESS SYSTEMS</b> of "
-        "<b>Jawaharlal Nehru Technological University Hyderabad (JNTUH)</b>, under <b>VNRVJIET B.Tech. R25 Academic Regulations</b>, "
+        "<b>Jawaharlal Nehru Technological University Hyderabad (JNTUH)</b>, under <b>VNRVJIET B.Tech. R22 Academic Regulations</b>, "
         "at Vallurupalli Nageswara Rao Vignana Jyothi Institute of Engineering & Technology, Hyderabad."
     )
     story.append(Paragraph(decl_body_1, body_text))
@@ -691,7 +691,7 @@ def create_report(output_filename=PRIMARY_OUTPUT_PDF):
 
     fig_3_1_path = "report_figures/fig_3_1_system_architecture.png"
     if os.path.exists(fig_3_1_path):
-        story.append(Image(fig_3_1_path, width=460.0, height=184.0, hAlign='CENTER'))
+        story.append(Image(fig_3_1_path, width=465.0, height=162.0, hAlign='CENTER'))
     story.append(Paragraph("Figure 3.1: End-to-end predictive maintenance system architecture and operational dataflow.", caption_style))
     story.append(Spacer(1, 4))
 
@@ -1498,7 +1498,7 @@ def create_report(output_filename=PRIMARY_OUTPUT_PDF):
     story.append(Spacer(1, 8))
 
     app_intro = (
-        "In accordance with VNRVJIET Academic Regulation R25 guidelines for the Machine Learning Laboratory (22PC2CB302) Community-Based Project, "
+        "In accordance with VNRVJIET Academic Regulation R22 guidelines for the Machine Learning Laboratory (22PC2CB302) Community-Based Project, "
         "the specific technical responsibilities, engineering deliverables, and research contributions of each of the five team members are documented in Table A.1."
     )
     story.append(Paragraph(app_intro, body_text))

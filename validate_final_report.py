@@ -26,7 +26,7 @@ PROHIBITED_AUTHORS = [
 
 REQUIRED_INSTITUTIONAL = [
     "VNR", "Vignana Jyothi", "Computer Science and Engineering",
-    "Computer Science and Business Systems", "22PC2CB302", "R25", "JNTUH", "Hyderabad",
+    "Computer Science and Business Systems", "22PC2CB302", "R22", "JNTUH", "Hyderabad",
     "Akhil", "Lakshmi Deepthi", "Baby"
 ]
 
@@ -73,6 +73,12 @@ def run_validation(pdf_path=TARGET_PDF):
         return False
     else:
         print("  -> PASS: Zero occurrences of outdated 'November 2026' date.")
+
+    if "R25" in full_text:
+        print("  -> FAIL: Found stale regulation 'R25' in report text.")
+        return False
+    else:
+        print("  -> PASS: Zero occurrences of outdated 'R25' regulation (R22 verified).")
 
     # 3. Negative Verification
     print("\n[CHECK 3] Prohibited Author Verification (Zero Old Authors):")

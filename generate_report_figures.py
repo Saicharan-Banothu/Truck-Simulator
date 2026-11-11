@@ -3,7 +3,7 @@ Enhanced High-Resolution Figure Generator for Academic CBP Project Report
 PREDICTING INDUSTRIAL TRUCK FAILURES FROM OPERATIONAL TELEMETRY
 VNR Vignana Jyothi Institute of Engineering & Technology
 Department of Computer Science and Engineering
-Academic Regulation R25 | OCTOBER 2026
+Academic Regulation R22 | OCTOBER 2026
 """
 
 import os
@@ -44,7 +44,7 @@ top_feats = metadata['top_features']
 # FIGURE 3.1: System Architecture (Spacious, Legible, No Overlaps, Content-Aware)
 # ==============================================================================
 def generate_fig_3_1():
-    fig, ax = plt.subplots(figsize=(12.0, 4.8), dpi=300)
+    fig, ax = plt.subplots(figsize=(13.8, 4.8), dpi=300)
     ax.axis('off')
 
     c_blue = '#1E3A8A'
@@ -52,7 +52,7 @@ def generate_fig_3_1():
     c_amber = '#B45309'
     c_purple = '#6B21A8'
 
-    w_box = 2.30
+    w_box = 2.38
     h_box = 3.35
     y_box = 0.55
 
@@ -63,20 +63,20 @@ def generate_fig_3_1():
             ('Vehicle Specifications', 'Chassis & powertrain metadata'),
             ('Fleet Partitions', '400 trucks (250 / 75 / 75 splits)')
         ], c_blue, '#F8FAFC'),
-        (3.35, '2', 'Causal Engine', [
+        (3.95, '2', 'Causal Engine', [
             ('Temporal Ordering', 'Chronological sort per truck'),
             ('Past-Only Difference', r'$\Delta x_t = x_t - x_{t-1}$ (zero leak)'),
             ('Signed-Log Compression', r'$g(\Delta) = \mathrm{sgn}(\Delta)\ln(1+|\Delta|)$'),
             ('Multi-Window Rolling', r'Mean, Std, Max: $W \in \{6, 12, 24\}$')
         ], c_teal, '#F0FDF4'),
-        (6.35, '3', 'LightGBM Model', [
+        (7.55, '3', 'LightGBM Model', [
             ('Feature Representation', '210 causal temporal channels'),
             ('Ensemble Estimators', '150 GBDT trees, max depth 6'),
             ('Leaf Architecture', '31 leaves, histogram binning'),
             ('Prediction Horizon', 'Target horizon H = 48 hours')
         ], c_amber, '#FFFBEB'),
-        (9.35, '4', 'Scania Decision', [
-            ('Asymmetric Cost Matrix', r'Penalty: \$500 FN vs \$10 FP/TP'),
+        (11.15, '4', 'Scania Decision', [
+            ('Asymmetric Cost Matrix', r'Cost: \$500 FN vs \$10 FP/TP'),
             ('Cost-Optimal Threshold', r'Optimal $\theta^* = 0.010$ (62.3% savings)'),
             ('Operational Risk Tiers', 'Critical, Warning, Advisory'),
             ('Production Dispatch', 'FastAPI REST & twin dashboard')
@@ -107,31 +107,34 @@ def generate_fig_3_1():
             card = patches.FancyBboxPatch((x + 0.09, y_cursor - 0.42), w_box - 0.18, 0.46,
                                           boxstyle='round,pad=0.02', ec='#E2E8F0', fc='#FFFFFF', lw=1.0)
             ax.add_patch(card)
-            ax.text(x + 0.15, y_cursor - 0.10, label, ha='left', va='center',
-                    fontsize=9.2, fontweight='bold', color='#0F172A')
-            ax.text(x + 0.15, y_cursor - 0.29, val, ha='left', va='center',
-                    fontsize=8.6, color='#334155')
+            ax.text(x + 0.16, y_cursor - 0.10, label, ha='left', va='center',
+                    fontsize=8.9, fontweight='bold', color='#0F172A')
+            ax.text(x + 0.16, y_cursor - 0.29, val, ha='left', va='center',
+                    fontsize=8.2, color='#334155')
             y_cursor -= 0.55
 
-    def draw_connector(x1, x2, y_c, label):
-        ax.annotate('', xy=(x2 - 0.06, y_c), xytext=(x1 + 0.06, y_c),
-                    arrowprops=dict(arrowstyle='-|>', color='#1E293B', lw=2.2, mutation_scale=16))
-        w_pill = 0.50
+    ax.text(6.94, 4.35, 'Four-Stage Causal Telemetry Predictive Maintenance Architecture',
+            ha='center', va='center', fontsize=13.0, fontweight='bold', color='#0F172A')
+
+    def draw_connector(x1, x2, label, pill_w=0.62):
+        y_arr = 1.90
+        y_pill = 2.22
         mid_x = (x1 + x2) / 2.0
-        pill = patches.FancyBboxPatch((mid_x - w_pill/2.0, y_c + 0.15), w_pill, 0.28,
-                                      boxstyle='round,pad=0.02', ec='#64748B', fc='#F1F5F9', lw=1.0)
+        # Clean arrow
+        ax.annotate('', xy=(x2 - 0.08, y_arr), xytext=(x1 + 0.08, y_arr),
+                    arrowprops=dict(arrowstyle='-|>', color='#1E293B', lw=2.2, mutation_scale=16))
+        # Elegant label pill floating above with generous clearance to both boxes
+        pill = patches.FancyBboxPatch((mid_x - pill_w/2.0, y_pill - 0.14), pill_w, 0.28,
+                                      boxstyle='round,pad=0.03', ec='#94A3B8', fc='#F8FAFC', lw=1.2)
         ax.add_patch(pill)
-        ax.text(mid_x, y_c + 0.29, label, ha='center', va='center',
-                fontsize=9.0, fontweight='bold', color='#0F172A')
+        ax.text(mid_x, y_pill, label, ha='center', va='center',
+                fontsize=8.5, fontweight='bold', color='#0F172A')
 
-    draw_connector(2.65, 3.35, 2.05, 'Streams')
-    draw_connector(5.65, 6.35, 2.05, '210 Feats')
-    draw_connector(8.65, 9.35, 2.05, r'$\hat{p}(t)$')
+    draw_connector(2.73, 3.95, 'Streams', pill_w=0.58)
+    draw_connector(6.33, 7.55, '210 Feats', pill_w=0.68)
+    draw_connector(9.93, 11.15, r'$\hat{p}(t)$', pill_w=0.48)
 
-    ax.text(6.0, 4.35, 'Four-Stage Causal Telemetry Predictive Maintenance Architecture',
-        ha='center', va='center', fontsize=13.0, fontweight='bold', color='#0F172A')
-
-    ax.set_xlim(0, 12.0)
+    ax.set_xlim(0, 13.85)
     ax.set_ylim(0.2, 4.7)
     plt.tight_layout()
     plt.savefig(OUTPUT_DIR / "fig_3_1_system_architecture.png", bbox_inches='tight')

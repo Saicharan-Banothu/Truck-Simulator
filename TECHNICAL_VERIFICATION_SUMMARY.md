@@ -5,7 +5,7 @@
 **Backup Mirror PDF:** `Predicting_Industrial_Truck_Failures_From_Operational_Telemetry_CBP_Report_FINAL.pdf`  
 **Institution:** Vallurupalli Nageswara Rao Vignana Jyothi Institute of Engineering & Technology (VNR VJIET)  
 **Department:** Computer Science and Engineering | B.Tech. Computer Science and Business Systems  
-**Course:** Machine Learning Laboratory (Course Code: 22PC2CB302) | Academic Regulation: R25, JNTUH  
+**Course:** Machine Learning Laboratory (Course Code: 22PC2CB302) | Academic Regulation: R22, JNTUH  
 **Date:** OCTOBER 2026  
 
 ---
